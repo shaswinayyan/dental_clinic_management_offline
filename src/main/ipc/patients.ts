@@ -215,7 +215,8 @@ export function registerPatientHandlers(): void {
   ipcMain.handle('patients:listTreatments', async (_e, patientId: number): Promise<IpcResult<TreatmentRecord[]>> => {
     try {
       const db = getDb()
-      const rows = db.prepare(`SELECT tr.*, t.name as treatment_name, c.name as chair_name, u.username as doctor_name
+      const rows = db.prepare(`SELECT tr.*, t.name as treatment_name, c.name as chair_name,
+          COALESCE(u.full_name, u.username) as doctor_name
         FROM treatment_records tr
         LEFT JOIN treatments t ON tr.treatment_id=t.id
         LEFT JOIN chairs c ON tr.chair_id=c.id

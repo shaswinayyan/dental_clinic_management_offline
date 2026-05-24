@@ -94,7 +94,7 @@ export default function InvoiceDetail({ id, navigate }: Props) {
     <div class="clinic-name">${clinic.clinic_name || 'Vorsa Dental Clinic'}</div>
     ${clinic.clinic_address ? `<div class="clinic-sub">${clinic.clinic_address}</div>` : ''}
     ${clinic.clinic_phone ? `<div class="clinic-sub">Tel: ${clinic.clinic_phone}</div>` : ''}
-    ${(clinic as AppSettings & { doctor_name?: string; doctor_qualification?: string; doctor_designation?: string }).doctor_name ? `<div class="doctor-line">Dr. ${(clinic as AppSettings & { doctor_name?: string }).doctor_name}${(clinic as AppSettings & { doctor_qualification?: string }).doctor_qualification ? ' &mdash; ' + (clinic as AppSettings & { doctor_qualification?: string }).doctor_qualification : ''}${(clinic as AppSettings & { doctor_designation?: string }).doctor_designation ? ' &middot; ' + (clinic as AppSettings & { doctor_designation?: string }).doctor_designation : ''}</div>` : ''}
+    ${user?.full_name ? `<div class="doctor-line">Dr. ${user.full_name}${user.qualification ? ' &mdash; ' + user.qualification : ''}${user.designation ? ' &middot; ' + user.designation : ''}${user.license_no ? ' &middot; Reg: ' + user.license_no : ''}</div>` : ''}
     <div style="height:1px;background:rgba(201,168,76,0.3);margin-top:14px;"></div>
   </div>
 

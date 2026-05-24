@@ -282,8 +282,13 @@ export function initializeSchema(db: Database.Database): void {
 
 // ── Run migrations for columns added after initial release ────────────────────
 export function runMigrations(db: Database.Database): void {
-  // Add billing_type to invoices (pharmacy vs treatment)
+  // billing_type on invoices
   try { db.prepare(`ALTER TABLE invoices ADD COLUMN billing_type TEXT NOT NULL DEFAULT 'treatment'`).run() } catch { /* already exists */ }
+  // Doctor profile fields on users (per-user, not app-level)
+  try { db.prepare(`ALTER TABLE users ADD COLUMN full_name TEXT`).run() } catch { /* already exists */ }
+  try { db.prepare(`ALTER TABLE users ADD COLUMN designation TEXT`).run() } catch { /* already exists */ }
+  try { db.prepare(`ALTER TABLE users ADD COLUMN qualification TEXT`).run() } catch { /* already exists */ }
+  try { db.prepare(`ALTER TABLE users ADD COLUMN license_no TEXT`).run() } catch { /* already exists */ }
 }
 
 export function seedDefaults(db: Database.Database): void {
@@ -330,10 +335,6 @@ export function seedDefaults(db: Database.Database): void {
       ['clinic_name', 'My Dental Clinic'],
       ['clinic_address', ''],
       ['clinic_phone', ''],
-      ['doctor_name', ''],
-      ['doctor_designation', ''],
-      ['doctor_qualification', ''],
-      ['doctor_license_no', ''],
       ['tax_rate', '18'],
       ['discount_threshold', '20'],
       ['session_timeout_minutes', '30'],

@@ -8,6 +8,11 @@ export interface User {
   role: UserRole
   is_active: number
   created_at: string
+  // Doctor / staff profile (stored per-user, populated from users table)
+  full_name?: string
+  designation?: string
+  qualification?: string
+  license_no?: string
 }
 
 export interface AuthSession {
@@ -323,10 +328,6 @@ export interface AppSettings {
   clinic_name: string
   clinic_address: string
   clinic_phone: string
-  doctor_name: string
-  doctor_designation: string
-  doctor_qualification: string
-  doctor_license_no: string
   tax_rate: number
   discount_threshold: number
   session_timeout_minutes: number

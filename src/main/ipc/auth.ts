@@ -23,8 +23,28 @@ export function registerAuthHandlers(): void {
   ipcMain.handle('auth:listUsers', async (): Promise<IpcResult<User[]>> => {
     try {
       const db = getDb()
-      const users = db.prepare('SELECT id,username,role,is_active,created_at FROM users').all() as User[]
+      const users = db.prepare(
+        'SELECT id,username,role,is_active,created_at,full_name,designation,qualification,license_no FROM users'
+      ).all() as User[]
       return { success: true, data: users }
+    } catch (e: unknown) {
+      return { success: false, error: String(e) }
+    }
+  })
+
+  ipcMain.handle('auth:updateProfile', async (_e, userId: number, data: {
+    full_name?: string; designation?: string; qualification?: string; license_no?: string
+  }): Promise<IpcResult<User>> => {
+    try {
+      const db = getDb()
+      db.prepare(`UPDATE users SET full_name=?,designation=?,qualification=?,license_no=? WHERE id=?`).run(
+        data.full_name ?? null, data.designation ?? null,
+        data.qualification ?? null, data.license_no ?? null, userId
+      )
+      const updated = db.prepare(
+        'SELECT id,username,role,is_active,created_at,full_name,designation,qualification,license_no FROM users WHERE id=?'
+      ).get(userId) as User
+      return { success: true, data: updated }
     } catch (e: unknown) {
       return { success: false, error: String(e) }
     }

@@ -13,7 +13,8 @@ const api = {
     resetPassword: (userId: number, newPassword: string) => invoke('auth:resetPassword', userId, newPassword),
     toggleUser: (userId: number, active: boolean) => invoke('auth:toggleUser', userId, active),
     initAdmin: () => invoke('auth:initAdmin'),
-    credentialsChanged: () => invoke('auth:credentialsChanged')
+    credentialsChanged: () => invoke('auth:credentialsChanged'),
+    updateProfile: (userId: number, data: unknown) => invoke('auth:updateProfile', userId, data)
   },
 
   // Patients

@@ -161,10 +161,10 @@ export default function TopBar({ route, navigate }: Props) {
           </Avatar>
           <div style={{ lineHeight: 1.3 }}>
             <div style={{ fontWeight: 600, fontSize: 13, color: text1, whiteSpace: 'nowrap' }}>
-              {user?.username ?? 'User'}
+              {user?.full_name || user?.username || 'User'}
             </div>
             <div style={{ fontSize: 10, color: '#c9a84c', textTransform: 'capitalize', letterSpacing: '0.05em' }}>
-              {user?.role ?? 'staff'}
+              {user?.designation || user?.role || 'staff'}
             </div>
           </div>
         </div>

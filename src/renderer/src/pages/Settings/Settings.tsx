@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Card, Form, Input, InputNumber, Button, message, Spin, Divider, Typography } from 'antd'
 import {
-  UserOutlined, BankOutlined, MedicineBoxOutlined,
-  SafetyOutlined, ControlOutlined, ClockCircleOutlined
+  BankOutlined, MedicineBoxOutlined,
+  SafetyOutlined, ControlOutlined
 } from '@ant-design/icons'
 import type { AppSettings, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
@@ -89,27 +89,6 @@ export default function SettingsPage({ navigate: _navigate }: Props) {
           </Form.Item>
 
           <Divider style={{ borderColor: 'rgba(201,168,76,0.18)' }} />
-
-          {/* ── Doctor Profile ─────────────────────────────────────── */}
-          <SectionTitle icon={<UserOutlined />} title="Doctor Profile" />
-          <Typography.Text type="secondary" style={{ display: 'block', fontSize: 12, marginBottom: 16 }}>
-            This information appears on printed invoices, prescriptions, and the clinic sidebar.
-          </Typography.Text>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
-            <Form.Item name="doctor_name" label="Doctor Full Name">
-              <Input prefix={<UserOutlined style={{ color: GOLD }} />} placeholder="e.g. Rajesh Kumar" />
-            </Form.Item>
-            <Form.Item name="doctor_designation" label="Designation">
-              <Input placeholder="e.g. Chief Dental Surgeon" />
-            </Form.Item>
-            <Form.Item name="doctor_qualification" label="Qualifications">
-              <Input placeholder="e.g. BDS, MDS (Orthodontics)" />
-            </Form.Item>
-            <Form.Item name="doctor_license_no" label="License / Registration No.">
-              <Input placeholder="e.g. TN-DCI-12345" />
-            </Form.Item>
-          </div>
 
           <Divider style={{ borderColor: 'rgba(201,168,76,0.18)' }} />
 

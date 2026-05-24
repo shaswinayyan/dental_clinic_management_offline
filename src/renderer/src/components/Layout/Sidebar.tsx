@@ -9,6 +9,7 @@ import {
 import type { Route } from './MainLayout'
 import type { IpcResult, AppSettings } from '../../../../shared/types'
 import VorsaLogo from '../VorsaLogo'
+import { useAuthStore } from '../../store/authStore'
 
 interface Props { route: Route; navigate: (r: Route) => void }
 interface NavItem { key: Route['page']; icon: React.ReactNode; label: string; badge?: number }
@@ -67,7 +68,11 @@ export default function Sidebar({ route, navigate }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [lowStock, setLowStock]   = useState(0)
   const [clinicName, setClinicName] = useState('Vorsa Clinic')
-  const [doctorName, setDoctorName] = useState('')
+  const { user } = useAuthStore()
+
+  // Display name: full_name if set, otherwise username
+  const displayName = user?.full_name || user?.username || ''
+  const isDoctor    = user?.role === 'doctor'
 
   useEffect(() => {
     window.api.inventory.getLowStockAlertCount().then((r) => {
@@ -76,10 +81,7 @@ export default function Sidebar({ route, navigate }: Props) {
     })
     window.api.settings.get().then((r) => {
       const res = r as IpcResult<AppSettings>
-      if (res.success && res.data) {
-        setClinicName(res.data.clinic_name || 'Vorsa Clinic')
-        setDoctorName((res.data as AppSettings & { doctor_name?: string }).doctor_name || '')
-      }
+      if (res.success && res.data) setClinicName(res.data.clinic_name || 'Vorsa Clinic')
     })
   }, [])
 
@@ -143,13 +145,10 @@ export default function Sidebar({ route, navigate }: Props) {
           }}>
             {clinicName}
           </div>
-          {doctorName ? (
-            <div style={{ fontSize: 10.5, color: S.gold, marginTop: 2, letterSpacing: '0.03em' }}>
-              Dr. {doctorName}
-            </div>
-          ) : (
-            <div style={{ fontSize: 10, color: S.silverDim, marginTop: 2, letterSpacing: '0.03em' }}>
-              Management System
+          {displayName && (
+            <div style={{ fontSize: 10.5, color: S.gold, marginTop: 2, letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {isDoctor ? 'Dr. ' : ''}{displayName}
+              {user?.designation && <span style={{ color: S.silverDim, marginLeft: 4 }}>· {user.designation}</span>}
             </div>
           )}
         </div>
