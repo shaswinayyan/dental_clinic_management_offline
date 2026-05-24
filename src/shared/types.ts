@@ -365,3 +365,227 @@ export interface DashboardStats {
   lowStockCount: number
   expiringItemsCount: number
 }
+
+// ─── Cloud / SaaS v2 types ────────────────────────────────────────────────────
+// These are used only when the app runs in cloud mode (VITE_APP_MODE=web).
+// Offline mode continues to use the original types above.
+
+/** Roles available in the cloud multi-tenant system. */
+export type CloudRole = 'clinic_owner' | 'branch_manager' | 'doctor' | 'receptionist'
+
+/** Subscription plan tiers. */
+export type ClinicPlan = 'starter' | 'growth' | 'enterprise'
+
+/** Top-level tenant record. */
+export interface Clinic {
+  id:         string   // UUID
+  name:       string
+  slug:       string   // URL-friendly unique identifier
+  plan:       ClinicPlan
+  is_active:  boolean
+  created_at: string
+}
+
+/** A physical or virtual branch of a clinic. */
+export interface Branch {
+  id:         string
+  clinic_id:  string
+  name:       string
+  address?:   string
+  phone?:     string
+  is_active:  boolean
+  created_at: string
+}
+
+/** Working hours for a single day in a branch. */
+export interface WorkingHours {
+  id:           string
+  clinic_id:    string
+  branch_id:    string
+  /** 0 = Sunday … 6 = Saturday */
+  day_of_week:  number
+  open_time:    string   // HH:MM
+  close_time:   string   // HH:MM
+  is_open:      boolean
+}
+
+/** A staff member belonging to a clinic (and optionally a branch). */
+export interface StaffMember {
+  id:            string
+  clinic_id:     string
+  branch_id:     string | null   // null for clinic_owner (cross-branch)
+  name:          string
+  email:         string
+  phone?:        string
+  role:          CloudRole
+  designation?:  string
+  is_active:     boolean
+  created_at:    string
+}
+
+/** Authenticated session tokens returned by login / refresh. */
+export interface CloudAuthSession {
+  accessToken:   string
+  refreshToken:  string
+  /** Access token TTL in seconds — use to schedule silent refresh. */
+  expiresIn:     number
+  staff:         StaffMember
+}
+
+// ── Appointment configuration (per branch) ────────────────────────────────────
+
+/** How the branch accepts appointments. */
+export type BookingMode = 'slot' | 'open' | 'token'
+
+/**
+ * Per-branch appointment configuration.
+ *
+ * slot  — Fixed time slots (e.g. 09:00, 09:30, 10:00 …)
+ * open  — Walk-in queue; no fixed slot, just a date + doctor
+ * token — Token numbers (T-001, T-002 …) issued per day, no specific time
+ */
+export interface ApptConfig {
+  id:                    string
+  clinic_id:             string
+  branch_id:             string
+  booking_mode:          BookingMode
+  /** Duration of each slot in minutes (slot mode only). */
+  slot_duration_mins:    number
+  /** How many days ahead patients can book online. */
+  advance_booking_days:  number
+  allow_walk_in:         boolean
+}
+
+/** A custom appointment status label defined by the clinic. */
+export interface ApptCustomStatus {
+  id:         string
+  clinic_id:  string
+  branch_id:  string
+  label:      string
+  color:      string   // hex color for UI badge
+  sort_order: number
+  is_default: boolean
+}
+
+// ── Custom form fields ────────────────────────────────────────────────────────
+
+export type CustomFieldType =
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'boolean'
+  | 'select'
+  | 'multiselect'
+
+/** A clinic-defined extra field that can be attached to patients or appointments. */
+export interface CustomField {
+  id:           string
+  clinic_id:    string
+  /** Which entity this field belongs to. */
+  entity_type:  'patient' | 'appointment'
+  label:        string
+  field_type:   CustomFieldType
+  /** JSON array of options for select/multiselect types. */
+  options?:     string[]
+  is_required:  boolean
+  sort_order:   number
+  is_active:    boolean
+}
+
+// ── API response envelope ─────────────────────────────────────────────────────
+
+/** Standard success envelope for all v2 REST responses. */
+export interface ApiResponse<T = void> {
+  success: true
+  data:    T
+}
+
+/** Standard error envelope for all v2 REST error responses. */
+export interface ApiErrorResponse {
+  success: false
+  error:   string
+  /** Field-level validation issues (422 responses only). */
+  issues?: Array<{ path: string; message: string }>
+}
+
+/** Paginated list response. */
+export interface PagedResponse<T> {
+  success: true
+  data:    T[]
+  meta: {
+    total:   number
+    page:    number
+    limit:   number
+    pages:   number
+  }
+}
+
+// ── API client interface ──────────────────────────────────────────────────────
+
+/**
+ * Abstraction that both the Electron IPC bridge and the HTTP fetch client
+ * must satisfy.  Allows all pages to call the same interface regardless of
+ * whether the app is running in desktop (Electron) or web (SaaS) mode.
+ */
+export interface ApiClient {
+  // Auth
+  login(email: string, password: string): Promise<CloudAuthSession>
+  logout(): Promise<void>
+  refreshTokens(): Promise<Pick<CloudAuthSession, 'accessToken' | 'expiresIn'>>
+  getMe(): Promise<StaffMember>
+
+  // Clinic
+  getClinic(): Promise<Clinic>
+  updateClinic(data: Partial<Pick<Clinic, 'name'>>): Promise<Clinic>
+
+  // Branches
+  getBranches(): Promise<Branch[]>
+  getBranch(id: string): Promise<Branch>
+  createBranch(data: Omit<Branch, 'id' | 'clinic_id' | 'created_at'>): Promise<Branch>
+  updateBranch(id: string, data: Partial<Omit<Branch, 'id' | 'clinic_id' | 'created_at'>>): Promise<Branch>
+  deleteBranch(id: string): Promise<void>
+
+  // Staff
+  getStaff(branchId?: string): Promise<StaffMember[]>
+  getStaffMember(id: string): Promise<StaffMember>
+  createStaff(data: Omit<StaffMember, 'id' | 'clinic_id' | 'created_at'> & { password: string }): Promise<StaffMember>
+  updateStaff(id: string, data: Partial<Omit<StaffMember, 'id' | 'clinic_id' | 'created_at'>>): Promise<StaffMember>
+  deleteStaff(id: string): Promise<void>
+
+  // Patients
+  getPatients(params?: { page?: number; limit?: number; search?: string; branchId?: string }): Promise<PagedResponse<Patient>>
+  getPatient(id: string): Promise<Patient>
+  createPatient(data: PatientFormData & { branchId: string }): Promise<Patient>
+  updatePatient(id: string, data: Partial<PatientFormData>): Promise<Patient>
+  archivePatient(id: string): Promise<void>
+
+  // Appointments
+  getAppointments(params?: { date?: string; branchId?: string; doctorId?: string; status?: string }): Promise<Appointment[]>
+  getAppointment(id: string): Promise<Appointment>
+  createAppointment(data: AppointmentFormData): Promise<Appointment>
+  updateAppointment(id: string, data: Partial<AppointmentFormData & { status: AppointmentStatus }>): Promise<Appointment>
+  deleteAppointment(id: string): Promise<void>
+
+  // Billing
+  getInvoices(params?: { page?: number; limit?: number; patientId?: string; status?: string }): Promise<PagedResponse<Invoice>>
+  getInvoice(id: string): Promise<Invoice & { items: InvoiceItem[]; payments: Payment[] }>
+  createInvoice(data: Omit<Invoice, 'id' | 'invoice_number' | 'created_at' | 'created_by'>  & { items: Omit<InvoiceItem, 'id' | 'invoice_id'>[] }): Promise<Invoice>
+  voidInvoice(id: string, reason: string): Promise<Invoice>
+  recordPayment(invoiceId: string, data: Omit<Payment, 'id' | 'invoice_id' | 'paid_at' | 'recorded_by'>): Promise<Payment>
+
+  // Inventory
+  getInventoryItems(branchId: string): Promise<InventoryItem[]>
+  createInventoryItem(data: Omit<InventoryItem, 'id' | 'current_stock'>): Promise<InventoryItem>
+  updateInventoryItem(id: string, data: Partial<Omit<InventoryItem, 'id'>>): Promise<InventoryItem>
+  recordInventoryTransaction(data: Omit<InventoryTransaction, 'id' | 'transaction_date' | 'recorded_by'>): Promise<InventoryTransaction>
+
+  // Settings
+  getApptConfig(branchId: string): Promise<ApptConfig>
+  updateApptConfig(branchId: string, data: Partial<Omit<ApptConfig, 'id' | 'clinic_id' | 'branch_id'>>): Promise<ApptConfig>
+  getCustomStatuses(branchId: string): Promise<ApptCustomStatus[]>
+  upsertCustomStatus(branchId: string, data: Omit<ApptCustomStatus, 'id' | 'clinic_id'>): Promise<ApptCustomStatus>
+  deleteCustomStatus(id: string): Promise<void>
+  getCustomFields(entityType: 'patient' | 'appointment'): Promise<CustomField[]>
+  upsertCustomField(data: Omit<CustomField, 'id' | 'clinic_id'>): Promise<CustomField>
+  deleteCustomField(id: string): Promise<void>
+}
