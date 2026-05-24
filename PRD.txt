@@ -1,0 +1,45 @@
+PRD requirement document
+Niche :Clinic Management Software
+Modules: Appointment Scheduler, Patient details, Payment and billing
+Requirements: Completely local system without any internet or clou connectivity. On premise system with a detailed software documentation to let the user to understand how to use them and set up initially and also a documentation for developers to understnad the codebase. The entire software should be compliant to the all the software coding standards used in ERP and clinic or hospital management system. The UI should be easy to access and should be mature. The entire application database with all these details should be secure and let the user to decide how to access it and use it in future and let the user to take backup whenever he wants and let him know where it is located. 
+
+In the patient details
+1. OP ID
+2. Name
+3. Contact number
+4. Address
+5. Past medical history
+
+
+Appointment Scheduling
+
+1. There will be three kinds of Units with Chair 1, Chair 2. Chair 3. There will be three different kinds of things handles. With the OP1 consists of 1hr schedules and OP2 and OP3 consists of minimal duration procedures. 
+2. The user can schedule an appointment by clicking the each chair and schedule the appointments properly and let the user see the slots and select the treatments available under the section and the time slots should be blocked for each chair.
+3. Once the appointment is scheduled the user should be able to see the total list of schedule including all the chairs in a single page and have the ability to make changes such as making rescheduling, pending and have the ability to make changes to flag it as confirm (after manually calling the person and confirming), and once done it will be flagged as completed.
+
+
+Patient details:
+
+1. Overall personal details as general information
+2. Overall treatments happened
+3. Contains the billing and transactions made
+4. Contains the image for each procedure or something
+5. Contains appointment history
+6. Clinical assessment for each procedure
+7. Feature: **Need a list of teeth and their procedure made and to be made and when the user should have the ability to click and add comments for each teeth like a interactive dental charts to differentiate them through different procedures done on them**
+8. Allergies
+9. Previous Presrcribed medicines
+
+Payment and billing:
+
+1. Once the payment for a procedure is made then it will generate an invoice and the partial payments has to be handled accordingly
+2. Ability to make a overall invoice with filter by payment methods
+3. Need a ledger in a section to manually mark and verify each payment and mark them as paid and also how much by cash and how much through UPI and card and marking them as paid.
+
+User details: The doctor, the receptionist
+
+
+Future updates: 
+1. Ability to add multiple clinics and doctors for each clinic
+2. Migrate the system to cloud based SaaS provider
+

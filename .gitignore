@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+
+# electron-vite cache
+.vite/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local env / secrets
+.env
+.env.*
+
+# Editor directories
+.vscode/
+.idea/
+
+# Test output
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
