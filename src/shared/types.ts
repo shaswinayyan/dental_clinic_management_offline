@@ -373,8 +373,8 @@ export interface DashboardStats {
 /** Roles available in the cloud multi-tenant system. */
 export type CloudRole = 'clinic_owner' | 'branch_manager' | 'doctor' | 'receptionist'
 
-/** Subscription plan tiers. */
-export type ClinicPlan = 'starter' | 'growth' | 'enterprise'
+/** Subscription plan tiers — PRD §8.1. */
+export type ClinicPlan = 'starter' | 'business' | 'enterprise'
 
 /** Top-level tenant record. */
 export interface Clinic {
@@ -421,6 +421,9 @@ export interface StaffMember {
   designation?:  string
   is_active:     boolean
   created_at:    string
+  /** Populated by /auth/me from the parent clinic record. */
+  plan?:         ClinicPlan
+  clinic_name?:  string
 }
 
 /** Authenticated session tokens returned by login / refresh. */
@@ -520,6 +523,17 @@ export interface PagedResponse<T> {
   }
 }
 
+// ── Raw HTTP escape hatch ─────────────────────────────────────────────────────
+// Used by cloud-only pages (Analytics, Global Settings) that call endpoints
+// not enumerated in the ApiClient interface.  Throws in desktop mode.
+
+export interface HttpEscapeHatch {
+  get<T>(path: string): Promise<T>
+  post<T>(path: string, body?: unknown): Promise<T>
+  patch<T>(path: string, body?: unknown): Promise<T>
+  del<T>(path: string): Promise<T>
+}
+
 // ── API client interface ──────────────────────────────────────────────────────
 
 /**
@@ -588,4 +602,10 @@ export interface ApiClient {
   getCustomFields(entityType: 'patient' | 'appointment'): Promise<CustomField[]>
   upsertCustomField(data: Omit<CustomField, 'id' | 'clinic_id'>): Promise<CustomField>
   deleteCustomField(id: string): Promise<void>
+
+  /**
+   * Raw HTTP escape hatch for cloud-only endpoints (Analytics, Customisation)
+   * not enumerated above.  Always throws in desktop (Electron) mode.
+   */
+  http: HttpEscapeHatch
 }

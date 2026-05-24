@@ -220,5 +220,8 @@ export function createFetchApi(
     getCustomFields:   (et)         => get<CustomField[]>(`/settings/custom-fields?entity_type=${et}`),
     upsertCustomField: (data)       => post<CustomField>('/settings/custom-fields', data),
     deleteCustomField: (id)         => del<void>(`/settings/custom-fields/${id}`),
+
+    // ── Raw HTTP escape hatch (analytics, customisation, etc.) ────────────
+    http: { get, post, patch, del },
   }
 }

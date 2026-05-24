@@ -56,7 +56,19 @@ export function initApiClient(tokenStore?: TokenStore): void {
   } else {
     // Electron IPC bridge — already satisfies ApiClient (partially).
     // The Electron preload exposes window.api which provides all methods.
-    _client = (window as unknown as { api: ApiClient }).api
+    // We add the `http` escape hatch stub so the type is satisfied — it
+    // throws at runtime because cloud-only pages are never shown in desktop mode.
+    const desktopApiError = () => Promise.reject(new Error('HTTP calls are not available in desktop (Electron) mode'))
+    const desktopApi = (window as unknown as { api: Omit<ApiClient, 'http'> }).api
+    _client = {
+      ...desktopApi,
+      http: {
+        get:   desktopApiError,
+        post:  desktopApiError,
+        patch: desktopApiError,
+        del:   desktopApiError,
+      },
+    } as ApiClient
   }
 }
 

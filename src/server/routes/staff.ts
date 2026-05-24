@@ -12,6 +12,7 @@ import { randomUUID } from 'crypto'
 import { query, queryOne, withTransaction } from '../db/postgres'
 import { authenticate }  from '../middleware/auth'
 import { requireRole, requireMinRole } from '../middleware/rbac'
+import { planGuard }     from '../middleware/planGuard'
 import { validate }      from '../middleware/validate'
 import { AppError }      from '../middleware/errorHandler'
 import { hashPassword }  from '../services/authService'
@@ -52,7 +53,7 @@ router.get('/', async (req, res, next) => {
 
 // ── POST / ────────────────────────────────────────────────────────────────────
 
-router.post('/', requireMinRole('branch_manager'), validate(CreateStaffSchema), async (req, res, next) => {
+router.post('/', requireMinRole('branch_manager'), planGuard('doctor'), validate(CreateStaffSchema), async (req, res, next) => {
   try {
     const {
       branch_id, name, email, password, phone,

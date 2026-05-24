@@ -22,6 +22,12 @@ import UserManagement from '../../pages/Settings/UserManagement'
 import TreatmentCatalogue from '../../pages/Settings/TreatmentCatalogue'
 import BackupRestore from '../../pages/Settings/BackupRestore'
 import AuditLog from '../../pages/Settings/AuditLog'
+// Cloud / SaaS pages
+import AnalyticsDashboard from '../../pages/Analytics/AnalyticsDashboard'
+import BranchManagement from '../../pages/admin/BranchManagement'
+import DoctorManagement from '../../pages/admin/DoctorManagement'
+import AppointmentConfig from '../../pages/admin/AppointmentConfig'
+import GlobalSettings from '../../pages/admin/GlobalSettings'
 
 export type Route =
   | { page: 'dashboard' }
@@ -44,6 +50,12 @@ export type Route =
   | { page: 'treatments' }
   | { page: 'backup' }
   | { page: 'audit' }
+  // Cloud / SaaS routes
+  | { page: 'analytics' }
+  | { page: 'admin-branches' }
+  | { page: 'admin-doctors' }
+  | { page: 'admin-appt-config' }
+  | { page: 'admin-global-settings' }
 
 // ── Breadcrumb ────────────────────────────────────────────────────────────────
 interface Crumb { label: string; route?: Route }
@@ -90,6 +102,16 @@ function getBreadcrumbs(route: Route, navigate: (r: Route) => void): Crumb[] {
       return [{ label: 'Settings', route: { page: 'settings' } }, { label: 'Backup & Restore' }]
     case 'audit':
       return [{ label: 'Settings', route: { page: 'settings' } }, { label: 'Audit Log' }]
+    case 'analytics':
+      return [{ label: 'Analytics' }]
+    case 'admin-branches':
+      return [{ label: 'Admin' }, { label: 'Branches' }]
+    case 'admin-doctors':
+      return [{ label: 'Admin' }, { label: 'Doctors & Staff' }]
+    case 'admin-appt-config':
+      return [{ label: 'Admin' }, { label: 'Appointment Config' }]
+    case 'admin-global-settings':
+      return [{ label: 'Admin' }, { label: 'Global Settings' }]
     default:
       return []
   }
@@ -155,6 +177,12 @@ export default function MainLayout() {
       case 'treatments': return <TreatmentCatalogue navigate={navigate} />
       case 'backup': return <BackupRestore navigate={navigate} />
       case 'audit': return <AuditLog navigate={navigate} />
+      // Cloud / SaaS pages
+      case 'analytics': return <AnalyticsDashboard navigate={navigate} />
+      case 'admin-branches': return <BranchManagement navigate={navigate} />
+      case 'admin-doctors': return <DoctorManagement navigate={navigate} />
+      case 'admin-appt-config': return <AppointmentConfig navigate={navigate} />
+      case 'admin-global-settings': return <GlobalSettings />
       default: return <Dashboard navigate={navigate} />
     }
   }

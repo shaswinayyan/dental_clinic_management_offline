@@ -4,7 +4,8 @@ import {
   CalendarOutlined, TeamOutlined, MedicineBoxOutlined, IdcardOutlined,
   BarChartOutlined, CreditCardOutlined, InboxOutlined, AppstoreOutlined,
   PieChartOutlined, SettingOutlined, DatabaseOutlined, AuditOutlined,
-  MenuFoldOutlined, MenuUnfoldOutlined, ShoppingCartOutlined
+  MenuFoldOutlined, MenuUnfoldOutlined, ShoppingCartOutlined,
+  LineChartOutlined, GlobalOutlined, BranchesOutlined, RocketOutlined
 } from '@ant-design/icons'
 import type { Route } from './MainLayout'
 import type { IpcResult, AppSettings } from '../../../../shared/types'
@@ -13,7 +14,7 @@ import { useAuthStore } from '../../store/authStore'
 
 interface Props { route: Route; navigate: (r: Route) => void }
 interface NavItem { key: Route['page']; icon: React.ReactNode; label: string; badge?: number }
-interface NavSection { label: string; items: NavItem[] }
+interface NavSection { label: string; items: NavItem[]; cloudOnly?: boolean; ownerOnly?: boolean }
 
 // ── Palette (sidebar is always dark navy, theme-independent) ──────────
 const S = {
@@ -33,48 +34,75 @@ const sections: NavSection[] = [
   {
     label: 'Clinical',
     items: [
-      { key: 'appointments-calendar', icon: <CalendarOutlined />, label: 'Appointments' },
-      { key: 'patients',              icon: <TeamOutlined />,     label: 'Patients' },
+      { key: 'appointments-calendar', icon: <CalendarOutlined />,   label: 'Appointments' },
+      { key: 'patients',              icon: <TeamOutlined />,        label: 'Patients' },
       { key: 'treatments',            icon: <MedicineBoxOutlined />, label: 'Treatments' },
-      { key: 'users',                 icon: <IdcardOutlined />,   label: 'Staff' },
+      { key: 'users',                 icon: <IdcardOutlined />,      label: 'Staff' },
     ]
   },
   {
     label: 'Finance',
     items: [
-      { key: 'invoices',         icon: <BarChartOutlined />,    label: 'Revenue' },
-      { key: 'ledger',           icon: <CreditCardOutlined />,  label: 'Payment Ledger' },
+      { key: 'invoices',         icon: <BarChartOutlined />,     label: 'Revenue' },
+      { key: 'ledger',           icon: <CreditCardOutlined />,   label: 'Payment Ledger' },
       { key: 'pharmacy-billing', icon: <ShoppingCartOutlined />, label: 'Pharmacy Billing' },
     ]
   },
   {
     label: 'Inventory',
     items: [
-      { key: 'inventory-items', icon: <InboxOutlined />,        label: 'Stocks' },
-      { key: 'inventory',       icon: <AppstoreOutlined />,     label: 'Inventory' },
-      { key: 'pharmacy-stock',  icon: <MedicineBoxOutlined />,  label: 'Pharmacy Stock' },
+      { key: 'inventory-items', icon: <InboxOutlined />,       label: 'Stocks' },
+      { key: 'inventory',       icon: <AppstoreOutlined />,    label: 'Inventory' },
+      { key: 'pharmacy-stock',  icon: <MedicineBoxOutlined />, label: 'Pharmacy Stock' },
+    ]
+  },
+  {
+    label: 'Analytics',
+    cloudOnly: true,
+    items: [
+      { key: 'analytics', icon: <LineChartOutlined />, label: 'Analytics' },
+    ]
+  },
+  {
+    label: 'Admin',
+    cloudOnly: true,
+    ownerOnly: true,
+    items: [
+      { key: 'admin-branches',       icon: <BranchesOutlined />, label: 'Branches' },
+      { key: 'admin-doctors',        icon: <IdcardOutlined />,   label: 'Doctors & Staff' },
+      { key: 'admin-appt-config',    icon: <RocketOutlined />,   label: 'Appt Config' },
+      { key: 'admin-global-settings',icon: <GlobalOutlined />,   label: 'Global Settings' },
     ]
   }
 ]
 
 const bottomItems: NavItem[] = [
-  { key: 'dashboard', icon: <PieChartOutlined />,  label: 'Reports' },
-  { key: 'settings',  icon: <SettingOutlined />,   label: 'Settings' },
-  { key: 'backup',    icon: <DatabaseOutlined />,  label: 'Backup & Restore' },
-  { key: 'audit',     icon: <AuditOutlined />,     label: 'Audit Log' },
+  { key: 'dashboard', icon: <PieChartOutlined />, label: 'Reports' },
+  { key: 'settings',  icon: <SettingOutlined />,  label: 'Settings' },
+  { key: 'backup',    icon: <DatabaseOutlined />, label: 'Backup & Restore' },
+  { key: 'audit',     icon: <AuditOutlined />,    label: 'Audit Log' },
 ]
 
 export default function Sidebar({ route, navigate }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [lowStock, setLowStock]   = useState(0)
   const [clinicName, setClinicName] = useState('Vorsa Clinic')
-  const { user } = useAuthStore()
+  const { user, mode, role: cloudRole, staff } = useAuthStore()
 
   // Display name: full_name if set, otherwise username
-  const displayName = user?.full_name || user?.username || ''
-  const isDoctor    = user?.role === 'doctor'
+  const displayName = mode === 'cloud'
+    ? (staff?.name ?? '')
+    : (user?.full_name || user?.username || '')
+  const isDoctor    = mode === 'cloud' ? cloudRole === 'doctor' : user?.role === 'doctor'
+  const isCloud     = mode === 'cloud'
+  const isOwner     = cloudRole === 'clinic_owner'
 
   useEffect(() => {
+    if (isCloud) {
+      // In cloud mode, clinic name comes from the staff profile (populated by /auth/me)
+      if (staff?.clinic_name) setClinicName(staff.clinic_name)
+      return
+    }
     window.api.inventory.getLowStockAlertCount().then((r) => {
       const res = r as IpcResult<number>
       if (res.success && res.data) setLowStock(res.data)
@@ -83,15 +111,15 @@ export default function Sidebar({ route, navigate }: Props) {
       const res = r as IpcResult<AppSettings>
       if (res.success && res.data) setClinicName(res.data.clinic_name || 'Vorsa Clinic')
     })
-  }, [])
+  }, [isCloud, staff?.clinic_name])
 
   const activeKey = route.page
 
   function isActive(key: string) {
     if (key === activeKey) return true
-    if (key === 'invoices'       && (activeKey === 'invoice-create'          || activeKey === 'invoice-detail'))     return true
-    if (key === 'inventory-items' && activeKey === 'inventory-item-detail')  return true
-    if (key === 'patients'        && activeKey === 'patient-detail')          return true
+    if (key === 'invoices'        && (activeKey === 'invoice-create' || activeKey === 'invoice-detail'))     return true
+    if (key === 'inventory-items' && activeKey === 'inventory-item-detail')   return true
+    if (key === 'patients'        && activeKey === 'patient-detail')           return true
     if (key === 'pharmacy-billing'&& activeKey === 'pharmacy-billing-create') return true
     return false
   }
@@ -157,7 +185,11 @@ export default function Sidebar({ route, navigate }: Props) {
 
       {/* ── Navigation ──────────────────────────────────────── */}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 4, marginTop: 8 }}>
-        {sections.map(section => (
+        {sections.filter(section => {
+          if (section.cloudOnly && !isCloud) return false
+          if (section.ownerOnly && !isOwner) return false
+          return true
+        }).map(section => (
           <div key={section.label}>
             {!collapsed && (
               <div className="zd-section-label">{section.label}</div>

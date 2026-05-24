@@ -28,6 +28,7 @@ import { randomUUID }    from 'crypto'
 import { query, queryOne, withTransaction } from '../db/postgres'
 import { authenticate }  from '../middleware/auth'
 import { requireRole, requireMinRole } from '../middleware/rbac'
+import { planGuard }     from '../middleware/planGuard'
 import { validate }      from '../middleware/validate'
 import { AppError }      from '../middleware/errorHandler'
 import { auditFromRequest } from '../services/auditService'
@@ -57,7 +58,7 @@ router.get('/', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-router.post('/', requireRole('clinic_owner'), validate(CreateBranchSchema), async (req, res, next) => {
+router.post('/', requireRole('clinic_owner'), planGuard('branch'), validate(CreateBranchSchema), async (req, res, next) => {
   try {
     const id = randomUUID()
     const { name, address, phone, is_active } = req.body as {
@@ -249,7 +250,7 @@ router.get('/:id/chairs', async (req, res, next) => {
   } catch (err) { next(err) }
 })
 
-router.post('/:id/chairs', requireMinRole('branch_manager'), async (req, res, next) => {
+router.post('/:id/chairs', requireMinRole('branch_manager'), planGuard('chair'), async (req, res, next) => {
   try {
     const { name } = req.body as { name: string }
     if (!name?.trim()) throw new AppError(422, 'Chair name is required')

@@ -2,42 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── VORSA Design System ─────────────────────────────────────────────── */
-:root {
-  /* Brand colours */
-  --vorsa-navy:        #0a1628;
-  --vorsa-navy-mid:    #0f2040;
-  --vorsa-navy-light:  #162a50;
-  --vorsa-gold:        #c9a84c;
-  --vorsa-gold-light:  #e8d080;
-  --vorsa-gold-dim:    rgba(201,168,76,0.14);
-  --vorsa-gold-border: rgba(201,168,76,0.22);
-  --vorsa-silver:      #8892a0;
-  --vorsa-silver-dim:  #5e6e84;
+/* ── VORSA Typography — Playfair Display + DM Sans + JetBrains Mono ─── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-  /* Layout */
-  --zd-bg-layout:  #f0f2f6;
-  --zd-bg-sidebar: var(--vorsa-navy);
-  --zd-bg-topbar:  #ffffff;
-  --zd-border:     #e2e8f0;
-  --zd-border-sub: #f1f5f9;
-  --zd-text-1:     #111827;
-  --zd-text-2:     #4b5563;
-  --zd-text-3:     #9ca3af;
-  --zd-nav-hover:  rgba(201,168,76,0.09);
-  --zd-section-lbl:rgba(201,168,76,0.5);
+/* ── VORSA Design System — PRD §10 ──────────────────────────────────── */
+:root {
+  /* ── Brand palette (light theme) ────────────────────────────── */
+  --vorsa-navy:         #0D1B2A;   /* Primary brand, top nav, headings   */
+  --vorsa-navy-mid:     #1A3050;   /* Sidebar, secondary headers         */
+  --vorsa-navy-light:   #E8EDF3;   /* Tinted backgrounds, table headers  */
+  --vorsa-gold:         #C9A84C;   /* Primary CTA, active states, accents*/
+  --vorsa-gold-light:   #F5EDD6;   /* Gold tinted hover surfaces         */
+  --vorsa-gold-dim:     rgba(201,168,76,0.14);
+  --vorsa-gold-border:  rgba(201,168,76,0.28);
+  --vorsa-silver:       #8A98A8;   /* Muted text, borders, labels        */
+  --vorsa-silver-dim:   #5e6e84;
+
+  /* ── Surface tokens (light) ──────────────────────────────────── */
+  --surface-primary:    #FFFFFF;   /* Card backgrounds, panels           */
+  --surface-secondary:  #F4F6F9;   /* Page background                    */
+  --surface-tertiary:   #EDF0F5;   /* Input backgrounds, alt table rows  */
+
+  /* ── Text tokens (light) ─────────────────────────────────────── */
+  --text-primary:       #0D1B2A;
+  --text-secondary:     #4A5568;
+  --text-muted:         #8A98A8;
+
+  /* ── Legacy aliases (used throughout components) ─────────────── */
+  --zd-bg-layout:       var(--surface-secondary);
+  --zd-bg-sidebar:      var(--vorsa-navy);
+  --zd-bg-topbar:       var(--surface-primary);
+  --zd-border:          #D8DEE9;
+  --zd-border-sub:      #EDF0F5;
+  --zd-text-1:          var(--text-primary);
+  --zd-text-2:          var(--text-secondary);
+  --zd-text-3:          var(--text-muted);
+  --zd-nav-hover:       rgba(201,168,76,0.09);
+  --zd-section-lbl:     rgba(201,168,76,0.5);
+
+  /* ── Component sizing ────────────────────────────────────────── */
+  --radius-card:        12px;
+  --radius-input:       8px;
+  --radius-btn:         8px;
+  --height-input:       40px;
+  --height-btn:         40px;
 }
 
+/* ── Dark theme tokens — PRD §10.1 ──────────────────────────────────── */
 [data-theme="dark"] {
-  --zd-bg-layout:  #0d1421;
-  --zd-bg-topbar:  #111c2e;
-  --zd-border:     #1e2d45;
-  --zd-border-sub: #162035;
-  --zd-text-1:     #e8edf5;
-  --zd-text-2:     #8a9ab5;
-  --zd-text-3:     #5a6a85;
-  --zd-nav-hover:  rgba(201,168,76,0.09);
-  --zd-section-lbl:rgba(201,168,76,0.5);
+  --vorsa-gold:         #C9A84C;   /* gold stays the same; primary accent*/
+  --surface-primary:    #0F1923;
+  --surface-secondary:  #0A1219;
+  --surface-tertiary:   #162130;
+  --text-primary:       #E8EDF3;
+  --text-secondary:     #8A98A8;
+  --text-muted:         #5A6878;
+
+  --zd-bg-layout:       var(--surface-secondary);
+  --zd-bg-topbar:       #0F1923;
+  --zd-border:          rgba(255,255,255,0.08);
+  --zd-border-sub:      rgba(255,255,255,0.04);
+  --zd-text-1:          var(--text-primary);
+  --zd-text-2:          var(--text-secondary);
+  --zd-text-3:          var(--text-muted);
 }
 
 * { box-sizing: border-box; }
@@ -47,8 +74,27 @@ body {
   background: var(--zd-bg-layout);
   color: var(--zd-text-1);
   font-size: 14px;
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
+  /* PRD §10.2 — DM Sans for all body / UI text */
+  font-family: 'DM Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* PRD §10.2 — Display/heading font */
+.vorsa-display,
+.vorsa-heading,
+h1.ant-typography,
+.ant-page-header-heading-title {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* PRD §10.2 — Monospace for IDs, codes, invoice numbers */
+.vorsa-mono,
+.patient-op-id,
+.invoice-number,
+code, kbd, pre {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.9em;
+  letter-spacing: 0.03em;
 }
 
 /* Smooth theme transition on all elements */
@@ -247,6 +293,95 @@ body {
   border-color: transparent !important;
   color: rgba(10,22,40,0.5) !important;
 }
+
+/* ── PRD §10.3 — Button / card / form component rules ───────────────── */
+
+/* Cards: 12px radius, 1px border, no drop-shadow in dark */
+.vorsa-card {
+  border-radius: var(--radius-card) !important;
+  border: 1px solid var(--zd-border) !important;
+  background: var(--surface-primary) !important;
+}
+[data-theme="dark"] .vorsa-card {
+  box-shadow: none !important;
+}
+
+/* Input height 40px, 12px radius, silver border, gold focus */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-picker {
+  min-height: var(--height-input) !important;
+  border-radius: var(--radius-input) !important;
+}
+.ant-input:focus,
+.ant-input-affix-wrapper-focused,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  border-color: var(--vorsa-gold) !important;
+  box-shadow: 0 0 0 2px rgba(201,168,76,0.15) !important;
+}
+
+/* ── PRD §10.3 — Data tables: sticky header, alternating rows ────────── */
+.ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-tertiary) !important;
+  color: var(--text-secondary) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.ant-table-tbody > tr:nth-child(even) > td {
+  background: var(--surface-tertiary) !important;
+}
+[data-theme="dark"] .ant-table-tbody > tr:nth-child(even) > td {
+  background: rgba(255,255,255,0.02) !important;
+}
+
+/* ── Subscription plan badge ─────────────────────────────────────────── */
+.plan-starter    { background: rgba(138,152,168,0.15); color: var(--vorsa-silver); }
+.plan-business   { background: rgba(201,168,76,0.12);  color: var(--vorsa-gold);   }
+.plan-enterprise { background: rgba(13,27,42,0.15);   color: var(--vorsa-navy);   }
+[data-theme="dark"] .plan-enterprise { background: rgba(201,168,76,0.1); color: var(--vorsa-gold-light); }
+
+/* ── Onboarding wizard step indicator ────────────────────────────────── */
+.vorsa-wizard-step {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600; font-size: 13px;
+  transition: all 0.2s;
+}
+.vorsa-wizard-step.done    { background: var(--vorsa-gold);   color: var(--vorsa-navy); }
+.vorsa-wizard-step.current { background: var(--vorsa-navy);   color: var(--vorsa-gold); border: 2px solid var(--vorsa-gold); }
+.vorsa-wizard-step.pending { background: var(--surface-tertiary); color: var(--text-muted); border: 2px solid var(--zd-border); }
+[data-theme="dark"] .vorsa-wizard-step.current { background: var(--surface-tertiary); }
+
+/* ── Notation badge (FDI / Universal / Palmer) ───────────────────────── */
+.notation-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  background: rgba(201,168,76,0.12);
+  color: var(--vorsa-gold);
+  border: 1px solid var(--vorsa-gold-border);
+}
+
+/* ── Analytics chart containers ──────────────────────────────────────── */
+.analytics-chart-card {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--zd-border);
+  background: var(--surface-primary);
+  padding: 20px;
+}
+[data-theme="dark"] .analytics-chart-card { background: var(--surface-primary); }
 
 /* ── Print ───────────────────────────────────────────────────────────── */
 @media print {

@@ -33,6 +33,7 @@ import { randomUUID } from 'crypto'
 import { query, queryOne, withTransaction } from '../db/postgres'
 import { authenticate }     from '../middleware/auth'
 import { requireMinRole }   from '../middleware/rbac'
+import { planGuard }        from '../middleware/planGuard'
 import { validate, paginationSchema } from '../middleware/validate'
 import { AppError }         from '../middleware/errorHandler'
 import { nextOpId }         from '../services/opIdService'
@@ -96,7 +97,7 @@ router.get('/', validate(paginationSchema, { target: 'query' }), async (req, res
 
 // ── POST / ────────────────────────────────────────────────────────────────────
 
-router.post('/', validate(CreatePatientSchema), async (req, res, next) => {
+router.post('/', planGuard('patient'), validate(CreatePatientSchema), async (req, res, next) => {
   try {
     const {
       branch_id, name, contact_number, address, date_of_birth,

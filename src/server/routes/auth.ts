@@ -185,8 +185,13 @@ router.post('/logout', validate(RefreshTokenSchema), async (req, res, next) => {
 router.get('/me', authenticate, async (req, res, next) => {
   try {
     const staff = await queryOne(
-      `SELECT id, clinic_id, branch_id, name, email, phone, role, designation, is_active, created_at
-       FROM staff WHERE id = $1`,
+      `SELECT
+         s.id, s.clinic_id, s.branch_id, s.name, s.email, s.phone,
+         s.role, s.designation, s.is_active, s.created_at,
+         c.plan, c.name AS clinic_name
+       FROM staff s
+       JOIN clinics c ON c.id = s.clinic_id
+       WHERE s.id = $1`,
       [req.staffId],
     )
     if (!staff) throw new AppError(404, 'Staff member not found')
