@@ -101,7 +101,7 @@ export default function PrescriptionsTab({ patientId, navigate }: Props) {
               border: `1px solid ${t.border}`, display: 'flex', gap: 16, flexWrap: 'wrap'
             }}>
               <div style={{ fontWeight: 600, color: t.text, minWidth: 140 }}>
-                <MedicineBoxOutlined style={{ color: '#2563eb', marginRight: 6 }} />
+                <MedicineBoxOutlined style={{ color: '#c9a84c', marginRight: 6 }} />
                 {item.medicine_name}
               </div>
               {item.dosage && <div style={{ color: t.textSub, fontSize: 12.5 }}>Dose: <strong>{item.dosage}</strong></div>}
@@ -190,7 +190,7 @@ export default function PrescriptionsTab({ patientId, navigate }: Props) {
       {/* Create prescription modal */}
       <Modal
         open={showForm}
-        title={<span><MedicineBoxOutlined style={{ color: '#2563eb', marginRight: 8 }} />New Prescription</span>}
+        title={<span><MedicineBoxOutlined style={{ color: '#c9a84c', marginRight: 8 }} />New Prescription</span>}
         footer={null}
         onCancel={() => { setShowForm(false); form.resetFields() }}
         width={640}

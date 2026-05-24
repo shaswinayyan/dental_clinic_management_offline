@@ -93,7 +93,7 @@ export default function UserManagement() {
             {initials(u.full_name || u.username)}
           </Avatar>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 13, color: NAVY }}>
+            <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--zd-text-1)' }}>
               {u.full_name || u.username}
               {u.full_name && <span style={{ color: '#9ca3af', fontWeight: 400, marginLeft: 6, fontSize: 12 }}>@{u.username}</span>}
             </div>
@@ -124,7 +124,7 @@ export default function UserManagement() {
     },
     {
       title: 'License No.', dataIndex: 'license_no', width: 140,
-      render: (v: string) => v ? <span style={{ fontSize: 12, color: '#6b7280' }}>{v}</span> : <span style={{ color: '#d1d5db' }}>—</span>
+      render: (v: string) => v ? <span style={{ fontSize: 12, color: 'var(--zd-text-2)' }}>{v}</span> : <span style={{ color: '#d1d5db' }}>—</span>
     },
     {
       title: 'Actions', width: 220,
@@ -154,7 +154,7 @@ export default function UserManagement() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontWeight: 800, fontSize: 17, color: NAVY, letterSpacing: '-0.2px' }}>
+          <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--zd-text-1)', letterSpacing: '-0.2px' }}>
             Staff & User Management
           </div>
           <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
@@ -176,7 +176,7 @@ export default function UserManagement() {
         rowKey="id"
         size="middle"
         pagination={false}
-        style={{ borderRadius: 8, overflow: 'hidden' }}
+        style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid var(--zd-border)' }}
       />
 
       {/* ── Edit Doctor Profile Modal ─────────────────────────────── */}
@@ -185,7 +185,7 @@ export default function UserManagement() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 4, height: 20, borderRadius: 2, background: `linear-gradient(${GOLD},#8a6020)` }} />
-            <span style={{ fontWeight: 700, color: NAVY }}>
+            <span style={{ fontWeight: 700, color: 'var(--zd-text-1)' }}>
               {showProfile?.role === 'doctor' ? 'Doctor Profile' : 'Staff Profile'} — {showProfile?.username}
             </span>
           </div>
@@ -205,7 +205,7 @@ export default function UserManagement() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
             <Form.Item
               name="full_name"
-              label={<span style={{ fontSize: 12, fontWeight: 600, color: '#374151', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Full Name</span>}
+              label={<span style={{ fontSize: 12, fontWeight: 600, color: 'var(--zd-text-2)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Full Name</span>}
               style={{ gridColumn: '1 / -1' }}
             >
               <Input
@@ -219,21 +219,21 @@ export default function UserManagement() {
               <>
                 <Form.Item
                   name="designation"
-                  label={<span style={{ fontSize: 12, fontWeight: 600, color: '#374151', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Designation</span>}
+                  label={<span style={{ fontSize: 12, fontWeight: 600, color: 'var(--zd-text-2)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Designation</span>}
                 >
                   <Input prefix={<IdcardOutlined style={{ color: GOLD }} />} placeholder="e.g. Chief Dental Surgeon" />
                 </Form.Item>
 
                 <Form.Item
                   name="license_no"
-                  label={<span style={{ fontSize: 12, fontWeight: 600, color: '#374151', letterSpacing: '0.05em', textTransform: 'uppercase' }}>License / Reg. No.</span>}
+                  label={<span style={{ fontSize: 12, fontWeight: 600, color: 'var(--zd-text-2)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>License / Reg. No.</span>}
                 >
                   <Input prefix={<SafetyCertificateOutlined style={{ color: GOLD }} />} placeholder="e.g. TN-DCI-12345" />
                 </Form.Item>
 
                 <Form.Item
                   name="qualification"
-                  label={<span style={{ fontSize: 12, fontWeight: 600, color: '#374151', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Qualifications</span>}
+                  label={<span style={{ fontSize: 12, fontWeight: 600, color: 'var(--zd-text-2)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Qualifications</span>}
                   style={{ gridColumn: '1 / -1' }}
                 >
                   <Input placeholder="e.g. BDS, MDS (Orthodontics), FAGE" />
@@ -258,7 +258,7 @@ export default function UserManagement() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 4, height: 20, borderRadius: 2, background: `linear-gradient(${GOLD},#8a6020)` }} />
-            <span style={{ fontWeight: 700, color: NAVY }}>Create New User</span>
+            <span style={{ fontWeight: 700, color: 'var(--zd-text-1)' }}>Create New User</span>
           </div>
         }
         footer={null}
@@ -297,7 +297,7 @@ export default function UserManagement() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 4, height: 20, borderRadius: 2, background: `linear-gradient(${GOLD},#8a6020)` }} />
-            <span style={{ fontWeight: 700, color: NAVY }}>Reset Password — {showReset?.full_name || showReset?.username}</span>
+            <span style={{ fontWeight: 700, color: 'var(--zd-text-1)' }}>Reset Password — {showReset?.full_name || showReset?.username}</span>
           </div>
         }
         footer={null}

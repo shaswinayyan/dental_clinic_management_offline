@@ -3,6 +3,7 @@ import { Card, Tag, Button, Form, Input, Select, DatePicker, Space, Timeline, me
 import { CloseOutlined, PlusOutlined, CheckCircleFilled, ClockCircleFilled, SyncOutlined } from '@ant-design/icons'
 import type { DentalChartEntry, Treatment, IpcResult } from '../../../../shared/types'
 import { useAuthStore } from '../../store/authStore'
+import { useT } from '../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props {
@@ -47,6 +48,7 @@ export default function ToothDetailPanel({
   const [treatments, setTreatments] = useState<Treatment[]>([])
   const [useFromCatalogue, setUseFromCatalogue] = useState(false)
   const { user } = useAuthStore()
+  const t = useT()
 
   // Load treatment catalogue for linking
   useEffect(() => {
@@ -106,7 +108,7 @@ export default function ToothDetailPanel({
       styles={{ header: { padding: '8px 14px' }, body: { padding: '14px' } }}
       title={
         <div>
-          <div style={{ fontWeight: 700, fontSize: 13.5, color: '#1e3a8a' }}>
+          <div style={{ fontWeight: 700, fontSize: 13.5, color: t.text }}>
             #{toothNumber} — {toothName ?? `Tooth ${toothNumber}`}
           </div>
           <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
@@ -139,13 +141,13 @@ export default function ToothDetailPanel({
               dot: STATUS_ICON[e.status],
               children: (
                 <div style={{ fontSize: 12.5 }}>
-                  <div style={{ fontWeight: 600, color: '#1e293b' }}>{e.procedure_type}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontWeight: 600, color: t.text }}>{e.procedure_type}</div>
+                  <div style={{ fontSize: 11, color: t.textSub, marginTop: 2 }}>
                     {e.surface.charAt(0).toUpperCase() + e.surface.slice(1)} surface
                     {' · '}
                     <Tag color={STATUS_COLOR[e.status]} style={{ fontSize: 10, borderRadius: 20 }}>{e.status}</Tag>
                   </div>
-                  {e.notes && <div style={{ fontSize: 11, color: '#475569', marginTop: 2, fontStyle: 'italic' }}>{e.notes}</div>}
+                  {e.notes && <div style={{ fontSize: 11, color: t.textSub, marginTop: 2, fontStyle: 'italic' }}>{e.notes}</div>}
                   <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>By: {e.created_by_name}</div>
                 </div>
               )
@@ -165,12 +167,12 @@ export default function ToothDetailPanel({
               dot: <CheckCircleFilled style={{ color: '#22c55e' }} />,
               children: (
                 <div style={{ fontSize: 12.5 }}>
-                  <div style={{ fontWeight: 600, color: '#1e293b' }}>{e.procedure_type}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontWeight: 600, color: t.text }}>{e.procedure_type}</div>
+                  <div style={{ fontSize: 11, color: t.textSub, marginTop: 2 }}>
                     {e.surface.charAt(0).toUpperCase() + e.surface.slice(1)} surface
                     {e.done_at && ` · ${dayjs(e.done_at).format('DD MMM YYYY')}`}
                   </div>
-                  {e.notes && <div style={{ fontSize: 11, color: '#475569', marginTop: 2, fontStyle: 'italic' }}>{e.notes}</div>}
+                  {e.notes && <div style={{ fontSize: 11, color: t.textSub, marginTop: 2, fontStyle: 'italic' }}>{e.notes}</div>}
                   <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>By: {e.created_by_name}</div>
                 </div>
               )
@@ -193,8 +195,8 @@ export default function ToothDetailPanel({
               Add Procedure
             </Button>
           ) : (
-            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 10 }}>
+            <div style={{ background: t.bgFill, borderRadius: 8, padding: 12, border: `1px solid ${t.border}` }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: t.text, marginBottom: 10 }}>
                 Add Procedure to #{toothNumber}
               </div>
 

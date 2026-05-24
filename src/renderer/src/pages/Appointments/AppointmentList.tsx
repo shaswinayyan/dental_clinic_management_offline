@@ -3,6 +3,7 @@ import { Table, Tag, Button, Select, DatePicker, Input, Space, Card, message, Mo
 import { SearchOutlined, ReloadOutlined } from '@ant-design/icons'
 import type { Appointment, Chair, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
+import { useT } from '../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { navigate: (r: Route) => void }
@@ -19,6 +20,7 @@ export default function AppointmentList({ navigate }: Props) {
   const [filters, setFilters] = useState<{ dateFrom?: string; dateTo?: string; chairId?: number; status?: string; search?: string }>({})
   const [rescheduleAppt, setRescheduleAppt] = useState<Appointment | null>(null)
   const [rescheduleForm] = Form.useForm()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -84,7 +86,7 @@ export default function AppointmentList({ navigate }: Props) {
   ]
 
   return (
-    <Card>
+    <Card style={{ border: `1px solid ${t.border}`, background: t.bg }}>
       <Space wrap style={{ marginBottom: 16 }}>
         <DatePicker placeholder="From date" format="DD/MM/YYYY" onChange={d => setFilters(f => ({ ...f, dateFrom: d?.format('YYYY-MM-DD') }))} />
         <DatePicker placeholder="To date" format="DD/MM/YYYY" onChange={d => setFilters(f => ({ ...f, dateTo: d?.format('YYYY-MM-DD') }))} />

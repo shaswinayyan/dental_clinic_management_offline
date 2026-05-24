@@ -3,6 +3,7 @@ import { Card, Tag, Tooltip, Switch } from 'antd'
 import { CheckCircleFilled, ExclamationCircleFilled } from '@ant-design/icons'
 import type { DentalChartEntry } from '../../../../shared/types'
 import ToothDetailPanel from './ToothDetailPanel'
+import { useTheme } from '../../context/ThemeContext'
 
 interface Props {
   patientId: number
@@ -94,8 +95,8 @@ function getProcedureCfg(type: string): { fill: string; border: string } {
   return { fill: '#94a3b8', border: '#64748b' }
 }
 
-function getToothColor(entries: DentalChartEntry[]): { crown: string; stroke: string } {
-  if (!entries.length) return { crown: '#f8fafc', stroke: '#cbd5e1' }
+function getToothColor(entries: DentalChartEntry[], isDark = false): { crown: string; stroke: string } {
+  if (!entries.length) return { crown: isDark ? '#2a3a52' : '#f1f5f9', stroke: isDark ? '#3d5070' : '#c8d3e0' }
   const top = entries[0]
   if (top.status === 'planned') return { crown: '#fed7aa', stroke: '#f97316' }
   if (top.status === 'ongoing') return { crown: '#fde68a', stroke: '#d97706' }
@@ -264,12 +265,13 @@ function ToothCell({
   isSelected: boolean
   isUpper: boolean
 }) {
+  const { isDark } = useTheme()
   const info = FDI_NAMES[number] ?? { name: `Tooth ${number}`, abbr: '?' }
   const hasPending  = entries.some(e => e.status === 'planned' || e.status === 'ongoing')
   const hasDone     = entries.some(e => e.status === 'completed')
   const isExtracted = entries.some(e => e.procedure_type.toLowerCase().includes('extraction'))
   const isMissing   = entries.some(e => e.procedure_type.toLowerCase().includes('missing'))
-  const { crown, stroke } = getToothColor(entries)
+  const { crown, stroke } = getToothColor(entries, isDark)
   const type = getToothType(number)
 
   const tooltipContent = (
@@ -297,18 +299,18 @@ function ToothCell({
           userSelect: 'none',
           padding: '2px 3px',
           borderRadius: 6,
-          background: isSelected ? '#eff6ff' : 'transparent',
-          border: isSelected ? '1.5px solid #2563eb' : '1.5px solid transparent',
+          background: isSelected ? 'rgba(201,168,76,0.14)' : 'transparent',
+          border: isSelected ? '1.5px solid rgba(201,168,76,0.55)' : '1.5px solid transparent',
           transition: 'all 0.15s',
           position: 'relative',
         }}
-        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(37,99,235,0.06)' }}
+        onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = 'rgba(201,168,76,0.08)' }}
         onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent' }}
       >
         {/* FDI number */}
         <div style={{
           fontSize: 9, fontWeight: 700,
-          color: isSelected ? '#2563eb' : '#64748b',
+          color: isSelected ? '#c9a84c' : 'var(--zd-text-2)',
           lineHeight: 1,
           marginBottom: isUpper ? 2 : 0,
           marginTop: isUpper ? 0 : 2,

@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import type { Treatment, TreatmentCategory, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
 import { useAuthStore } from '../../store/authStore'
+import { useT } from '../../hooks/useT'
 
 interface Props { navigate: (r: Route) => void }
 
@@ -16,6 +17,7 @@ export default function TreatmentCatalogue({ navigate }: Props) {
   const [saving, setSaving] = useState(false)
   const [form] = Form.useForm()
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     const r = await window.api.appointments.allTreatments() as IpcResult<Treatment[]>
@@ -69,9 +71,9 @@ export default function TreatmentCatalogue({ navigate }: Props) {
   ]
 
   return (
-    <div>
+    <div style={{ background: t.bg, borderRadius: 12, border: `1px solid ${t.border}`, padding: '20px 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 16, color: '#1e3a8a' }}>Treatment Catalogue</div>
+        <div style={{ fontWeight: 700, fontSize: 16, color: t.text }}>Treatment Catalogue</div>
         {user?.role === 'doctor' && (
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>Add Treatment</Button>
         )}

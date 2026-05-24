@@ -3,6 +3,7 @@ import { Card, Tag, Button, Collapse, Image, Spin, Select, DatePicker, Input, Ro
 import { CalendarOutlined, DollarOutlined, FileImageOutlined } from '@ant-design/icons'
 import type { IpcResult } from '../../../../../shared/types'
 import type { Route } from '../../../components/Layout/MainLayout'
+import { useT } from '../../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface TimelineEntry {
@@ -26,6 +27,7 @@ export default function TreatmentTimeline({ patientId, navigate }: Props) {
   const [filtered, setFiltered] = useState<TimelineEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState({ search: '', status: '', dateFrom: '', dateTo: '' })
+  const t = useT()
 
   useEffect(() => {
     async function load() {
@@ -62,17 +64,17 @@ export default function TreatmentTimeline({ patientId, navigate }: Props) {
   function renderEntry(e: TimelineEntry) {
     return (
       <div key={e.id} className={`timeline-card ${e.status === 'planned' ? 'timeline-card-planned' : ''}`}
-        style={{ background: '#fff', borderRadius: 8, padding: '16px', marginBottom: 12, border: '1px solid #e2e8f0' }}>
+        style={{ background: t.bg, borderRadius: 8, padding: '16px', marginBottom: 12, border: `1px solid ${t.border}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <CalendarOutlined style={{ color: '#1d4ed8' }} />
-              <span style={{ fontWeight: 600, color: '#1e3a8a' }}>{dayjs(e.treated_at).format('DD MMM YYYY')}</span>
+              <CalendarOutlined style={{ color: '#c9a84c' }} />
+              <span style={{ fontWeight: 600, color: '#c9a84c' }}>{dayjs(e.treated_at).format('DD MMM YYYY')}</span>
               <span style={{ fontSize: 14, fontWeight: 500 }}>{e.treatment_name}</span>
               {e.tooth_area && <Tag>{e.tooth_area}</Tag>}
               <Tag color={STATUS_COLOR[e.status]}>{e.status}</Tag>
             </div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>
+            <div style={{ fontSize: 12, color: t.textSub }}>
               {e.chair_name && <span>{e.chair_name} • </span>}
               {e.doctor_name && <span>Dr. {e.doctor_name}</span>}
             </div>
@@ -84,11 +86,11 @@ export default function TreatmentTimeline({ patientId, navigate }: Props) {
           )}
         </div>
 
-        {e.notes && <div style={{ marginTop: 8, color: '#374151', fontStyle: 'italic', fontSize: 13 }}>"{e.notes}"</div>}
+        {e.notes && <div style={{ marginTop: 8, color: t.textSub, fontStyle: 'italic', fontSize: 13 }}>"{e.notes}"</div>}
 
         {e.assessment && (e.assessment.subjective || e.assessment.plan) && (
           <Collapse ghost size="small" style={{ marginTop: 8 }} items={[{
-            key: 'soap', label: <span style={{ fontSize: 12, color: '#1d4ed8' }}>SOAP Notes</span>,
+            key: 'soap', label: <span style={{ fontSize: 12, color: '#c9a84c' }}>SOAP Notes</span>,
             children: (
               <div style={{ fontSize: 12 }}>
                 {e.assessment.subjective && <div><strong>S:</strong> {e.assessment.subjective}</div>}
@@ -102,7 +104,7 @@ export default function TreatmentTimeline({ patientId, navigate }: Props) {
 
         {e.images.length > 0 && (
           <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <FileImageOutlined style={{ color: '#64748b', marginTop: 4 }} />
+            <FileImageOutlined style={{ color: t.textHint, marginTop: 4 }} />
             <Image.PreviewGroup>
               {e.images.map(img => (
                 <Image key={img.id} src={`file://${img.file_path}`} width={80} height={60}

@@ -14,12 +14,12 @@ import dayjs from 'dayjs'
 interface Props { navigate: (r: Route) => void }
 
 const STATUS_CONFIG: Record<string, { bg: string; border: string; text: string; dot: string; label: string }> = {
-  scheduled:   { bg: '#eff6ff', border: '#bfdbfe', text: '#1d4ed8', dot: '#2563eb',   label: 'Registered' },
-  confirmed:   { bg: '#f0fdf4', border: '#bbf7d0', text: '#15803d', dot: '#16a34a',   label: 'Confirmed' },
-  pending:     { bg: '#fff7ed', border: '#fed7aa', text: '#c2410c', dot: '#ea580c',   label: 'In Treatment' },
-  completed:   { bg: '#f0fdf4', border: '#86efac', text: '#15803d', dot: '#22c55e',   label: 'Finished' },
-  cancelled:   { bg: '#fef2f2', border: '#fecaca', text: '#dc2626', dot: '#ef4444',   label: 'Cancelled' },
-  rescheduled: { bg: '#faf5ff', border: '#e9d5ff', text: '#7c3aed', dot: '#8b5cf6',   label: 'Rescheduled' },
+  scheduled:   { bg: 'rgba(59,130,246,0.14)',  border: 'rgba(59,130,246,0.35)',  text: '#3b82f6', dot: '#60a5fa',  label: 'Registered' },
+  confirmed:   { bg: 'rgba(34,197,94,0.14)',   border: 'rgba(34,197,94,0.35)',   text: '#16a34a', dot: '#22c55e',  label: 'Confirmed' },
+  pending:     { bg: 'rgba(234,88,12,0.14)',   border: 'rgba(234,88,12,0.35)',   text: '#ea580c', dot: '#fb923c',  label: 'In Treatment' },
+  completed:   { bg: 'rgba(34,197,94,0.10)',   border: 'rgba(34,197,94,0.28)',   text: '#15803d', dot: '#22c55e',  label: 'Finished' },
+  cancelled:   { bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.3)',    text: '#dc2626', dot: '#ef4444',  label: 'Cancelled' },
+  rescheduled: { bg: 'rgba(139,92,246,0.13)',  border: 'rgba(139,92,246,0.3)',   text: '#7c3aed', dot: '#8b5cf6',  label: 'Rescheduled' },
 }
 
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8) // 8am–8pm
@@ -110,7 +110,7 @@ export default function AppointmentScheduler({ navigate }: Props) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CalendarOutlined style={{ color: '#2563eb' }} />
+            <CalendarOutlined style={{ color: '#c9a84c' }} />
             <span style={{ fontWeight: 700, fontSize: 15, color: t.text }}>{todayCount}</span>
             <span style={{ color: t.textSub, fontSize: 13 }}>total appointments</span>
           </div>
@@ -226,23 +226,23 @@ export default function AppointmentScheduler({ navigate }: Props) {
                               <div style={{ width: 6, height: 6, borderRadius: '50%', background: cfg.dot, flexShrink: 0 }} />
                               <span style={{ fontSize: 10.5, fontWeight: 700, color: cfg.text }}>{cfg.label}</span>
                             </div>
-                            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: cfg.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                               {appt.patient_name}
                             </div>
                             {height > 50 && appt.patient_contact_number && (
-                              <div style={{ fontSize: 10.5, color: '#64748b', display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
+                              <div style={{ fontSize: 10.5, color: cfg.text, opacity: 0.75, display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
                                 <PhoneOutlined style={{ fontSize: 9 }} />
                                 {appt.patient_contact_number}
                               </div>
                             )}
                             {height > 66 && (
-                              <div style={{ fontSize: 11, color: '#64748b', display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
+                              <div style={{ fontSize: 11, color: cfg.text, opacity: 0.75, display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 }}>
                                 <ClockCircleOutlined style={{ fontSize: 9 }} />
                                 {dayjs(appt.scheduled_at).format('HH:mm')} › {dayjs(appt.scheduled_at).add(appt.duration_minutes, 'minute').format('HH:mm')}
                               </div>
                             )}
                             {height > 84 && appt.treatment_name && (
-                              <div style={{ fontSize: 10.5, color: '#94a3b8', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              <div style={{ fontSize: 10.5, color: cfg.text, opacity: 0.6, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {appt.treatment_name}
                               </div>
                             )}
@@ -371,7 +371,7 @@ export default function AppointmentScheduler({ navigate }: Props) {
               <Form.Item name="new_duration" label="Duration (minutes)" rules={[{ required: true }]}>
                 <InputNumber min={5} max={480} step={15} style={{ width: '100%' }} />
               </Form.Item>
-              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 12.5, color: '#92400e' }}>
+              <div style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.35)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 12.5, color: '#d97706' }}>
                 The original appointment will be marked as rescheduled and a new one will be created.
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>

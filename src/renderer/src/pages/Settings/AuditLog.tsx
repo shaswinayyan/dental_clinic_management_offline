@@ -3,6 +3,7 @@ import { Table, DatePicker, Card, Button } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import type { IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
+import { useT } from '../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { navigate: (r: Route) => void }
@@ -20,6 +21,7 @@ export default function AuditLog({ navigate }: Props) {
   const [entries, setEntries] = useState<AuditEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<{ dateFrom?: string; dateTo?: string }>({})
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -39,7 +41,8 @@ export default function AuditLog({ navigate }: Props) {
   ]
 
   return (
-    <Card title="Audit Log">
+    <Card title={<span style={{ color: t.text, fontWeight: 700 }}>Audit Log</span>}
+      style={{ border: `1px solid ${t.border}`, background: t.bg }}>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <DatePicker placeholder="From date" format="DD/MM/YYYY" onChange={d => setFilters(f => ({ ...f, dateFrom: d?.format('YYYY-MM-DD') }))} />
         <DatePicker placeholder="To date" format="DD/MM/YYYY" onChange={d => setFilters(f => ({ ...f, dateTo: d?.format('YYYY-MM-DD') }))} />

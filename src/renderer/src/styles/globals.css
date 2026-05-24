@@ -45,9 +45,21 @@
 body {
   margin: 0; padding: 0;
   background: var(--zd-bg-layout);
+  color: var(--zd-text-1);
   font-size: 14px;
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* Smooth theme transition on all elements */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+/* Exclude transitions that would look bad */
+.zd-sidebar *, button *, a *, input, textarea, [class*="ant-"] {
+  transition: none;
+}
+.zd-sidebar { transition: width 0.24s cubic-bezier(.4,0,.2,1), min-width 0.24s cubic-bezier(.4,0,.2,1) !important; }
 
 /* ── Ant Design overrides ────────────────────────────────────────────── */
 .ant-layout { background: var(--zd-bg-layout) !important; }
@@ -112,6 +124,13 @@ body {
 .status-cancelled  { background: #fee2e2; color: #dc2626; }
 .status-rescheduled{ background: #f3e8ff; color: #7c3aed; }
 
+[data-theme="dark"] .status-scheduled   { background: rgba(29,78,216,0.18);  color: #93c5fd; }
+[data-theme="dark"] .status-confirmed   { background: rgba(22,163,74,0.18);  color: #86efac; }
+[data-theme="dark"] .status-pending     { background: rgba(194,65,12,0.18);  color: #fdba74; }
+[data-theme="dark"] .status-completed   { background: rgba(75,85,99,0.20);   color: #d1d5db; }
+[data-theme="dark"] .status-cancelled   { background: rgba(220,38,38,0.18);  color: #fca5a5; }
+[data-theme="dark"] .status-rescheduled { background: rgba(124,58,237,0.18); color: #c4b5fd; }
+
 /* ── Allergy alert ───────────────────────────────────────────────────── */
 .allergy-banner {
   background: #fee2e2;
@@ -120,6 +139,11 @@ body {
   padding: 8px 16px;
   color: #991b1b;
   font-weight: 500;
+}
+[data-theme="dark"] .allergy-banner {
+  background: rgba(220,38,38,0.12);
+  border-color: rgba(220,38,38,0.3);
+  color: #fca5a5;
 }
 
 /* ── Timeline ────────────────────────────────────────────────────────── */
@@ -166,8 +190,23 @@ body {
 
 /* ── Dark mode overrides ─────────────────────────────────────────────── */
 [data-theme="dark"] .ant-table { background: transparent !important; }
-[data-theme="dark"] .ant-table-thead > tr > th { background: #111c2e !important; }
+[data-theme="dark"] .ant-table-thead > tr > th { background: #111c2e !important; color: #8a9ab5 !important; }
+[data-theme="dark"] .ant-table-tbody > tr > td { border-color: #1e2d45 !important; }
+[data-theme="dark"] .ant-table-tbody > tr:hover > td { background: rgba(255,255,255,0.04) !important; }
 [data-theme="dark"] .ant-card { border-color: #1e2d45 !important; }
+[data-theme="dark"] .ant-card-head { border-bottom-color: #1e2d45 !important; color: #e8edf5 !important; }
+[data-theme="dark"] .ant-descriptions-item-label { color: #8a9ab5 !important; }
+[data-theme="dark"] .ant-descriptions-item-content { color: #e8edf5 !important; }
+[data-theme="dark"] .ant-statistic-title { color: #8a9ab5 !important; }
+[data-theme="dark"] .ant-collapse { background: transparent !important; }
+[data-theme="dark"] .ant-collapse-header { color: #e8edf5 !important; }
+[data-theme="dark"] .ant-form-item-label > label { color: #8a9ab5 !important; }
+[data-theme="dark"] .ant-select-selector { background: #111c2e !important; border-color: #1e2d45 !important; color: #e8edf5 !important; }
+[data-theme="dark"] .ant-input, [data-theme="dark"] .ant-input-number { background: #111c2e !important; border-color: #1e2d45 !important; color: #e8edf5 !important; }
+[data-theme="dark"] .ant-input-affix-wrapper { background: #111c2e !important; border-color: #1e2d45 !important; }
+[data-theme="dark"] .ant-input-affix-wrapper input { background: transparent !important; color: #e8edf5 !important; }
+[data-theme="dark"] .ant-picker { background: #111c2e !important; border-color: #1e2d45 !important; color: #e8edf5 !important; }
+[data-theme="dark"] .ant-picker input { color: #e8edf5 !important; }
 
 /* ── Breadcrumb ──────────────────────────────────────────────────────── */
 .zd-breadcrumb {

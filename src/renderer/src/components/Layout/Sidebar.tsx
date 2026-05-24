@@ -110,6 +110,7 @@ export default function Sidebar({ route, navigate }: Props) {
         height: '100vh', position: 'sticky', top: 0,
         background: S.bg,
         borderRight: `1px solid ${S.border}`,
+        boxShadow: '4px 0 24px rgba(0,0,0,0.28)',
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
         transition: 'width 0.24s cubic-bezier(.4,0,.2,1), min-width 0.24s cubic-bezier(.4,0,.2,1)',

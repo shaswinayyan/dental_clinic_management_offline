@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Table, Tag, Button, Statistic, Row, Col, Card, Spin } from 'antd'
 import type { Invoice, IpcResult } from '../../../../../shared/types'
 import type { Route } from '../../../components/Layout/MainLayout'
+import { useT } from '../../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { patientId: number; navigate: (r: Route) => void }
@@ -9,6 +10,7 @@ interface Props { patientId: number; navigate: (r: Route) => void }
 export default function BillingTab({ patientId, navigate }: Props) {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
+  const t = useT()
 
   useEffect(() => {
     async function load() {
@@ -43,7 +45,7 @@ export default function BillingTab({ patientId, navigate }: Props) {
     <div>
       <Row gutter={16} style={{ marginBottom: 16 }}>
         {[
-          { title: 'Total Billed', value: `₹${totalBilled.toLocaleString('en-IN')}`, color: '#1e3a8a' },
+          { title: 'Total Billed', value: `₹${totalBilled.toLocaleString('en-IN')}`, color: t.text },
           { title: 'Total Paid', value: `₹${totalPaid.toLocaleString('en-IN')}`, color: '#16a34a' },
           { title: 'Outstanding', value: `₹${outstanding.toLocaleString('en-IN')}`, color: outstanding > 0 ? '#dc2626' : '#16a34a' }
         ].map((s, i) => (

@@ -4,6 +4,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import type { TreatmentRecord, Treatment, Chair, IpcResult } from '../../../../../shared/types'
 import type { Route } from '../../../components/Layout/MainLayout'
 import { useAuthStore } from '../../../store/authStore'
+import { useTheme } from '../../../context/ThemeContext'
 import dayjs from 'dayjs'
 
 interface Props { patientId: number; navigate: (r: Route) => void }
@@ -75,18 +76,18 @@ function ToothBtn({ n, active, onClick }: { n: number; active: boolean; onClick:
         onClick={onClick}
         style={{
           width: 26, height: 26, borderRadius: 5, border: 'none', padding: 0,
-          background: active ? '#1d4ed8' : '#f1f5f9',
-          color: active ? '#fff' : '#64748b',
+          background: active ? '#c9a84c' : 'var(--zd-border-sub)',
+          color: active ? '#0a1628' : 'var(--zd-text-2)',
           fontSize: 8.5, fontWeight: 700,
           cursor: 'pointer', flexShrink: 0,
-          outline: active ? '2px solid #93c5fd' : 'none',
+          outline: active ? '2px solid rgba(201,168,76,0.5)' : 'none',
           outlineOffset: 1,
           transition: 'background 0.12s, outline 0.12s',
-          boxShadow: active ? '0 1px 4px rgba(37,99,235,0.35)' : 'none',
+          boxShadow: active ? '0 1px 4px rgba(201,168,76,0.35)' : 'none',
           display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}
-        onMouseEnter={e => { if (!active) e.currentTarget.style.background = '#dbeafe' }}
-        onMouseLeave={e => { if (!active) e.currentTarget.style.background = '#f1f5f9' }}
+        onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(201,168,76,0.15)' }}
+        onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'var(--zd-border-sub)' }}
       >
         {n}
       </button>
@@ -97,6 +98,7 @@ function ToothBtn({ n, active, onClick }: { n: number; active: boolean; onClick:
 // ── TOOTH PICKER ──────────────────────────────────────────────────────────────
 // Used for: Restorative, Endodontic, Surgical, Prosthodontic (crowns/bridges/implants)
 function ToothPicker({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+  const { isDark } = useTheme()
   const selected = new Set<string>(
     (value || '').split(',').map(s => s.trim()).filter(s => /^\d{2}$/.test(s))
   )
@@ -122,8 +124,8 @@ function ToothPicker({ value, onChange }: { value?: string; onChange?: (v: strin
   return (
     <div>
       <div style={{
-        background: '#f8fafc', borderRadius: 10,
-        border: '1.5px solid #e2e8f0', padding: '10px 12px'
+        background: isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc', borderRadius: 10,
+        border: isDark ? '1.5px solid rgba(255,255,255,0.08)' : '1.5px solid #e2e8f0', padding: '10px 12px'
       }}>
         {/* Upper arch row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
@@ -197,8 +199,8 @@ const ARCH_OPTIONS = [
     label: 'Upper Jaw',
     sub: 'Maxillary arch',
     color: '#3b82f6',
-    bg: '#eff6ff',
-    border: '#93c5fd',
+    bg: 'rgba(59,130,246,0.15)',
+    border: 'rgba(59,130,246,0.4)',
     svg: (
       <svg width="48" height="28" viewBox="0 0 48 28" fill="none">
         <path d="M4 24 C4 12 10 4 24 3 C38 4 44 12 44 24" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
@@ -216,8 +218,8 @@ const ARCH_OPTIONS = [
     label: 'Lower Jaw',
     sub: 'Mandibular arch',
     color: '#0891b2',
-    bg: '#ecfeff',
-    border: '#67e8f9',
+    bg: 'rgba(8,145,178,0.15)',
+    border: 'rgba(8,145,178,0.4)',
     svg: (
       <svg width="48" height="28" viewBox="0 0 48 28" fill="none">
         <path d="M4 4 C4 16 10 24 24 25 C38 24 44 16 44 4" stroke="#0891b2" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
@@ -248,6 +250,7 @@ const ARCH_OPTIONS = [
 ]
 
 function ArchPicker({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+  const { isDark } = useTheme()
   return (
     <div style={{ display: 'flex', gap: 10 }}>
       {ARCH_OPTIONS.map(opt => {
@@ -259,16 +262,16 @@ function ArchPicker({ value, onChange }: { value?: string; onChange?: (v: string
             onClick={() => onChange?.(active ? '' : opt.value)}
             style={{
               flex: 1, padding: '14px 10px', borderRadius: 10, cursor: 'pointer',
-              border: `2px solid ${active ? opt.border : '#e2e8f0'}`,
-              background: active ? opt.bg : '#f8fafc',
-              color: active ? opt.color : '#64748b',
+              border: `2px solid ${active ? opt.border : 'var(--zd-border)'}`,
+              background: active ? opt.bg : isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+              color: active ? opt.color : 'var(--zd-text-2)',
               textAlign: 'center', transition: 'all 0.15s',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6
             }}
           >
             {opt.svg}
             <div style={{ fontWeight: 700, fontSize: 13, marginTop: 2 }}>{opt.label}</div>
-            <div style={{ fontSize: 10, color: active ? opt.color : '#94a3b8' }}>{opt.sub}</div>
+            <div style={{ fontSize: 10, color: active ? opt.color : 'var(--zd-text-3)' }}>{opt.sub}</div>
             {active && (
               <div style={{
                 fontSize: 10, background: opt.color, color: '#fff',
@@ -298,7 +301,7 @@ const SCOPE_OPTIONS: ScopeOption[] = [
 
 // quadrant layout SVGs (mini)
 const SCOPE_ICONS: Record<string, React.ReactNode> = {
-  'Full Mouth':       <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2 14 C2 6 7 2 15 2 C23 2 28 6 28 14" stroke="#2563eb" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M2 8 C2 16 7 20 15 20 C23 20 28 16 28 8" stroke="#2563eb" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>,
+  'Full Mouth':       <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2 14 C2 6 7 2 15 2 C23 2 28 6 28 14" stroke="#c9a84c" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M2 8 C2 16 7 20 15 20 C23 20 28 16 28 8" stroke="#c9a84c" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>,
   'Upper Arch':       <svg width="30" height="16" viewBox="0 0 30 16"><path d="M2 14 C2 6 7 2 15 2 C23 2 28 6 28 14" stroke="#3b82f6" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>,
   'Lower Arch':       <svg width="30" height="16" viewBox="0 0 30 16"><path d="M2 2 C2 10 7 14 15 14 C23 14 28 10 28 2" stroke="#0891b2" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>,
   'Q1 - Upper Right': <svg width="22" height="16" viewBox="0 0 22 16"><path d="M12 14 C12 6 16 2 22 2" stroke="#f59e0b" strokeWidth="2" fill="none" strokeLinecap="round"/><rect x="0" y="0" width="11" height="14" rx="2" fill="#f59e0b" opacity="0.15"/><text x="5.5" y="10" textAnchor="middle" fontSize="8" fontWeight="700" fill="#b45309">Q1</text></svg>,
@@ -308,6 +311,7 @@ const SCOPE_ICONS: Record<string, React.ReactNode> = {
 }
 
 function ScopePicker({ value, onChange }: { value?: string; onChange?: (v: string) => void }) {
+  const { isDark } = useTheme()
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {/* Full mouth row */}
@@ -321,9 +325,9 @@ function ScopePicker({ value, onChange }: { value?: string; onChange?: (v: strin
               onClick={() => onChange?.(active ? '' : opt.value)}
               style={{
                 flex: 1, padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
-                border: `2px solid ${active ? '#2563eb' : '#e2e8f0'}`,
-                background: active ? '#eff6ff' : '#f8fafc',
-                color: active ? '#1d4ed8' : '#64748b',
+                border: `2px solid ${active ? '#c9a84c' : 'var(--zd-border)'}`,
+                background: active ? 'rgba(201,168,76,0.12)' : isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+                color: active ? '#c9a84c' : 'var(--zd-text-2)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
                 transition: 'all 0.15s'
               }}
@@ -346,16 +350,16 @@ function ScopePicker({ value, onChange }: { value?: string; onChange?: (v: strin
               onClick={() => onChange?.(active ? '' : opt.value)}
               style={{
                 flex: 1, padding: '8px 6px', borderRadius: 8, cursor: 'pointer',
-                border: `2px solid ${active ? '#2563eb' : '#e2e8f0'}`,
-                background: active ? '#eff6ff' : '#f8fafc',
-                color: active ? '#1d4ed8' : '#64748b',
+                border: `2px solid ${active ? '#c9a84c' : 'var(--zd-border)'}`,
+                background: active ? 'rgba(201,168,76,0.12)' : isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc',
+                color: active ? '#c9a84c' : 'var(--zd-text-2)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                 transition: 'all 0.15s'
               }}
             >
               {SCOPE_ICONS[opt.value]}
               <div style={{ fontWeight: 700, fontSize: 13 }}>{opt.label}</div>
-              {opt.sub && <div style={{ fontSize: 9, color: active ? '#3b82f6' : '#94a3b8' }}>{opt.sub}</div>}
+              {opt.sub && <div style={{ fontSize: 9, color: active ? '#c9a84c' : 'var(--zd-text-3)' }}>{opt.sub}</div>}
             </button>
           )
         })}
@@ -363,9 +367,9 @@ function ScopePicker({ value, onChange }: { value?: string; onChange?: (v: strin
 
       {value && (
         <div style={{
-          fontSize: 12, color: '#1d4ed8', fontWeight: 600,
-          background: '#eff6ff', padding: '4px 10px', borderRadius: 6,
-          border: '1px solid #bfdbfe'
+          fontSize: 12, color: '#c9a84c', fontWeight: 600,
+          background: 'rgba(201,168,76,0.1)', padding: '4px 10px', borderRadius: 6,
+          border: '1px solid rgba(201,168,76,0.3)'
         }}>
           ✓ Area: {value}
         </div>
@@ -390,7 +394,7 @@ function AreaLabel({ mode, name }: { mode: AreaMode; name: string }) {
     tooth: {
       label: 'Tooth / Teeth',
       hint: 'Select specific tooth/teeth from the FDI chart below',
-      color: '#2563eb'
+      color: '#c9a84c'
     },
     arch: {
       label: 'Jaw / Arch',
@@ -410,8 +414,8 @@ function AreaLabel({ mode, name }: { mode: AreaMode; name: string }) {
       marginBottom: 8
     }}>
       <div>
-        <span style={{ fontWeight: 600, color: '#1e293b', fontSize: 13 }}>{cfg.label}</span>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>{cfg.hint}</div>
+        <span style={{ fontWeight: 600, color: 'var(--zd-text-1)', fontSize: 13 }}>{cfg.label}</span>
+        <div style={{ fontSize: 11, color: 'var(--zd-text-3)', marginTop: 1 }}>{cfg.hint}</div>
       </div>
       <span style={{
         fontSize: 10, background: cfg.color, color: '#fff',
@@ -434,6 +438,7 @@ export default function TreatmentsTab({ patientId }: Props) {
   const [selectedTreatment, setSelectedTreatment] = useState<Treatment | null>(null)
   const [form] = Form.useForm()
   const { user } = useAuthStore()
+  const { isDark } = useTheme()
 
   async function load() {
     setLoading(true)
@@ -606,8 +611,8 @@ export default function TreatmentsTab({ patientId }: Props) {
           {/* Area selector — only shown after a treatment is picked */}
           {selectedTreatment ? (
             <div style={{
-              background: '#f8fafc', borderRadius: 10, padding: '12px 14px',
-              border: '1.5px solid #e2e8f0', marginBottom: 16
+              background: isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc', borderRadius: 10, padding: '12px 14px',
+              border: isDark ? '1.5px solid rgba(255,255,255,0.08)' : '1.5px solid #e2e8f0', marginBottom: 16
             }}>
               <AreaLabel mode={areaMode} name={selectedTreatment.name} />
               <Form.Item name="tooth_area" style={{ marginBottom: 0 }}>
@@ -616,9 +621,9 @@ export default function TreatmentsTab({ patientId }: Props) {
             </div>
           ) : (
             <div style={{
-              background: '#f8fafc', borderRadius: 10, padding: '14px 16px',
-              border: '1.5px dashed #e2e8f0', marginBottom: 16,
-              textAlign: 'center', color: '#94a3b8', fontSize: 13
+              background: isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc', borderRadius: 10, padding: '14px 16px',
+              border: isDark ? '1.5px dashed rgba(255,255,255,0.1)' : '1.5px dashed #e2e8f0', marginBottom: 16,
+              textAlign: 'center', color: 'var(--zd-text-3)', fontSize: 13
             }}>
               Select a procedure above to see the appropriate tooth/area selector
             </div>

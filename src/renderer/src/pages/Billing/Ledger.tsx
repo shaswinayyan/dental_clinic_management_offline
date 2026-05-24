@@ -47,10 +47,10 @@ export default function Ledger({ navigate }: Props) {
   const grandTotal = payments.reduce((s, p) => s + p.amount, 0)
 
   const summaryCards = [
-    { title: 'Cash', value: `₹${cashTotal.toLocaleString('en-IN')}`, color: t.success,  bg: '#dcfce7', iconBg: '#16a34a' },
-    { title: 'UPI',  value: `₹${upiTotal.toLocaleString('en-IN')}`,  color: t.primary, bg: '#dbeafe', iconBg: '#2563eb' },
-    { title: 'Card', value: `₹${cardTotal.toLocaleString('en-IN')}`, color: t.warning,  bg: '#fef3c7', iconBg: '#d97706' },
-    { title: 'Total',value: `₹${grandTotal.toLocaleString('en-IN')}`,color: t.text,     bg: '#f3e8ff', iconBg: '#7c3aed' },
+    { title: 'Cash', value: `₹${cashTotal.toLocaleString('en-IN')}`, color: t.success },
+    { title: 'UPI',  value: `₹${upiTotal.toLocaleString('en-IN')}`,  color: '#c9a84c' },
+    { title: 'Card', value: `₹${cardTotal.toLocaleString('en-IN')}`, color: t.warning  },
+    { title: 'Total',value: `₹${grandTotal.toLocaleString('en-IN')}`,color: t.text     },
   ]
 
   const columns = [

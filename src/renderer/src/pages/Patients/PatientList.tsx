@@ -11,10 +11,17 @@ interface Props { navigate: (r: Route) => void }
 const GENDER_COLOR: Record<string, string> = { Male: 'blue', Female: 'pink', Other: 'purple' }
 
 function avatarColor(name: string) {
-  const colors = ['#dbeafe', '#dcfce7', '#f3e8ff', '#fef3c7', '#fee2e2', '#cffafe']
-  const textColors = ['#2563eb', '#16a34a', '#7c3aed', '#d97706', '#dc2626', '#0891b2']
-  const i = name.charCodeAt(0) % colors.length
-  return { bg: colors[i], text: textColors[i] }
+  // rgba-based: readable in both light and dark mode
+  const hues = [
+    { bg: 'rgba(59,130,246,0.15)',  text: '#3b82f6' },
+    { bg: 'rgba(34,197,94,0.15)',   text: '#16a34a' },
+    { bg: 'rgba(139,92,246,0.15)', text: '#7c3aed' },
+    { bg: 'rgba(217,119,6,0.15)',   text: '#d97706' },
+    { bg: 'rgba(220,38,38,0.15)',   text: '#dc2626' },
+    { bg: 'rgba(8,145,178,0.15)',   text: '#0891b2' },
+  ]
+  const i = name.charCodeAt(0) % hues.length
+  return { bg: hues[i].bg, text: hues[i].text }
 }
 
 export default function PatientList({ navigate }: Props) {

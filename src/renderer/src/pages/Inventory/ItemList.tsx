@@ -4,6 +4,7 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import type { InventoryItem, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
 import { useAuthStore } from '../../store/authStore'
+import { useT } from '../../hooks/useT'
 
 interface Props { navigate: (r: Route) => void }
 
@@ -19,6 +20,7 @@ export default function ItemList({ navigate }: Props) {
   const [editItem, setEditItem] = useState<InventoryItem | null>(null)
   const [form] = Form.useForm()
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -75,7 +77,7 @@ export default function ItemList({ navigate }: Props) {
   ]
 
   return (
-    <Card>
+    <Card style={{ border: `1px solid ${t.border}`, background: t.bg }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Select placeholder="Category" style={{ width: 150 }} allowClear onChange={v => setFilters(f => ({ ...f, category: v }))}

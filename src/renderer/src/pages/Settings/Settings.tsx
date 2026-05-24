@@ -24,7 +24,7 @@ function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string })
         {icon}
       </div>
       <div>
-        <div style={{ fontWeight: 700, fontSize: 14, color: NAVY, letterSpacing: '0.01em' }}>{title}</div>
+        <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--zd-text-1)', letterSpacing: '0.01em' }}>{title}</div>
         <div style={{ width: 28, height: 2, background: `linear-gradient(90deg, ${GOLD}, transparent)`, marginTop: 3 }} />
       </div>
     </div>
@@ -68,7 +68,7 @@ export default function SettingsPage({ navigate: _navigate }: Props) {
               width: 4, height: 24, borderRadius: 2,
               background: `linear-gradient(180deg, ${GOLD}, #8a6020)`
             }} />
-            <span style={{ fontWeight: 800, fontSize: 16, color: NAVY, letterSpacing: '-0.2px' }}>
+            <span style={{ fontWeight: 800, fontSize: 16, color: 'var(--zd-text-1)', letterSpacing: '-0.2px' }}>
               Clinic Settings
             </span>
           </div>

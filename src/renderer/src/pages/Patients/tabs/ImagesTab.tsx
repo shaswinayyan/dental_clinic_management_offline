@@ -3,6 +3,7 @@ import { Button, Modal, Form, Select, Input, DatePicker, message, Image, Spin, T
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { PatientImage, Patient, IpcResult } from '../../../../../shared/types'
 import { useAuthStore } from '../../../store/authStore'
+import { useT } from '../../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { patientId: number; patient: Patient }
@@ -22,6 +23,7 @@ export default function ImagesTab({ patientId, patient }: Props) {
   const [saving, setSaving] = useState(false)
   const [form] = Form.useForm()
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -85,7 +87,7 @@ export default function ImagesTab({ patientId, patient }: Props) {
 
       {Object.keys(grouped).sort().reverse().map(date => (
         <div key={date} style={{ marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, color: '#1e3a8a', marginBottom: 8 }}>{dayjs(date).format('DD MMM YYYY')}</div>
+          <div style={{ fontWeight: 600, color: '#c9a84c', marginBottom: 8 }}>{dayjs(date).format('DD MMM YYYY')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             {grouped[date].map(img => (
               <div key={img.id} style={{ position: 'relative', textAlign: 'center' }}>

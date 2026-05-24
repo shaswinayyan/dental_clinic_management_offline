@@ -160,7 +160,7 @@ export default function MainLayout() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: isDark ? '#0f172a' : '#f1f5f9' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--zd-bg-layout)' }}>
       <Sidebar route={route} navigate={navigate} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <TopBar route={route} navigate={navigate} />

@@ -552,8 +552,8 @@ export default function PharmacyBillingForm({ navigate }: Props) {
             {rxModalOpen.items && rxModalOpen.items.map(item => (
               <div key={item.id} style={{
                 padding: '8px 12px', marginBottom: 6,
-                background: '#f8fafc', borderRadius: 6,
-                border: '1px solid #e2e8f0'
+                background: t.bgFill, borderRadius: 6,
+                border: `1px solid ${t.border}`
               }}>
                 <div style={{ fontWeight: 600 }}>{item.medicine_name}</div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>

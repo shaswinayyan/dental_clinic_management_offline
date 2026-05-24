@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons'
 import type { Patient, Allergy, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
+import { useT } from '../../hooks/useT'
 import PatientForm from './PatientForm'
 import GeneralInfo from './tabs/GeneralInfo'
 import TreatmentsTab from './tabs/TreatmentsTab'
@@ -56,6 +57,7 @@ export default function PatientDetail({ id, navigate }: Props) {
   const [editOpen, setEditOpen] = useState(false)
   const [waOpen, setWaOpen] = useState(false)
   const [waTemplate, setWaTemplate] = useState('appointment')
+  const t = useT()
 
   async function loadPatient() {
     const r = await window.api.patients.get(id) as IpcResult<Patient>
@@ -89,18 +91,18 @@ export default function PatientDetail({ id, navigate }: Props) {
   return (
     <div>
       {/* Header */}
-      <Card style={{ marginBottom: 16 }}>
+      <Card style={{ marginBottom: 16, border: `1px solid ${t.border}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Button icon={<ArrowLeftOutlined />} onClick={() => navigate({ page: 'patients' })}>Back</Button>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Typography.Title level={4} style={{ margin: 0, color: '#1e3a8a' }}>{patient.name}</Typography.Title>
+                <Typography.Title level={4} style={{ margin: 0, color: t.text }}>{patient.name}</Typography.Title>
                 {patient.gender && <Tag>{patient.gender}</Tag>}
                 {patient.blood_group && <Tag color="red">{patient.blood_group}</Tag>}
               </div>
-              <div style={{ color: '#64748b', fontSize: 13, marginTop: 2 }}>
-                <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#1d4ed8' }}>{patient.op_id}</code>
+              <div style={{ color: t.textSub, fontSize: 13, marginTop: 2 }}>
+                <code style={{ background: 'var(--zd-border-sub)', padding: '2px 6px', borderRadius: 4, color: '#c9a84c' }}>{patient.op_id}</code>
                 <span style={{ marginLeft: 8 }}>{patient.contact_number}</span>
                 {patient.date_of_birth && <span style={{ marginLeft: 8 }}>DOB: {new Date(patient.date_of_birth).toLocaleDateString('en-IN')}</span>}
               </div>
@@ -129,7 +131,7 @@ export default function PatientDetail({ id, navigate }: Props) {
       </Card>
 
       {/* Tabs */}
-      <Card>
+      <Card style={{ border: `1px solid ${t.border}` }}>
         <Tabs defaultActiveKey="general" type="card" destroyInactiveTabPane items={[
           { key: 'general', label: 'General Info', children: <GeneralInfo patient={patient} /> },
           { key: 'treatments', label: 'Treatments', children: <TreatmentsTab patientId={id} navigate={navigate} /> },
@@ -176,7 +178,7 @@ export default function PatientDetail({ id, navigate }: Props) {
         ]}
         width={520}
       >
-        <div style={{ marginBottom: 12, color: '#64748b', fontSize: 13 }}>
+        <div style={{ marginBottom: 12, color: t.textSub, fontSize: 13 }}>
           Select a message template for <strong>{patient.name}</strong> ({patient.contact_number}):
         </div>
         <Radio.Group
@@ -191,9 +193,9 @@ export default function PatientDetail({ id, navigate }: Props) {
                   <div style={{ fontWeight: 600, fontSize: 13 }}>{tpl.label}</div>
                   <div style={{
                     marginTop: 4, padding: '8px 10px',
-                    background: '#f0fdf4', borderRadius: 6,
-                    border: '1px solid #bbf7d0', fontSize: 12,
-                    color: '#166534', lineHeight: 1.5
+                    background: 'rgba(34,197,94,0.08)', borderRadius: 6,
+                    border: '1px solid rgba(34,197,94,0.25)', fontSize: 12,
+                    color: t.textSub, lineHeight: 1.5
                   }}>
                     {tpl.message(patient.name)}
                   </div>

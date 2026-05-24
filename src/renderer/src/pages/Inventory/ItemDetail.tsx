@@ -4,6 +4,7 @@ import { ArrowLeftOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icon
 import type { InventoryItem, InventoryTransaction, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
 import { useAuthStore } from '../../store/authStore'
+import { useT } from '../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { id: number; navigate: (r: Route) => void }
@@ -24,6 +25,7 @@ export default function ItemDetail({ id, navigate }: Props) {
   const [stockInForm] = Form.useForm()
   const [stockOutForm] = Form.useForm()
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -105,7 +107,7 @@ export default function ItemDetail({ id, navigate }: Props) {
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={() => navigate({ page: 'inventory-items' })}>Back</Button>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#1e3a8a' }}>{item.item_name}</div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: t.text }}>{item.item_name}</div>
               <Tag>{item.category}</Tag>
               <Tag color={stockStatus === 'In Stock' ? 'green' : stockStatus === 'Low Stock' ? 'orange' : 'red'}>{stockStatus}</Tag>
             </div>

@@ -79,7 +79,7 @@ export default function BackupRestore({ navigate }: Props) {
         <Descriptions size="small" column={1}>
           <Descriptions.Item label="Database Location">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <code style={{ fontSize: 12, background: '#f1f5f9', padding: '2px 8px', borderRadius: 4 }}>{dbPath}</code>
+              <code style={{ fontSize: 12, background: 'var(--zd-border-sub)', color: 'var(--zd-text-1)', padding: '2px 8px', borderRadius: 4 }}>{dbPath}</code>
               <Button size="small" onClick={() => window.api.settings.openDbFolder()}>Open Folder</Button>
             </div>
           </Descriptions.Item>

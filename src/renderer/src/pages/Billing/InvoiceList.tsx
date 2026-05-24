@@ -4,6 +4,7 @@ import { PlusOutlined, ExportOutlined, RiseOutlined, DollarOutlined, ClockCircle
 import type { Invoice, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
 import { useT } from '../../hooks/useT'
+import { useTheme } from '../../context/ThemeContext'
 import dayjs from 'dayjs'
 
 interface Props { navigate: (r: Route) => void }
@@ -16,10 +17,11 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; darkBg: string;
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { isDark } = useTheme()
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.unpaid
   return (
     <span style={{
-      background: cfg.bg, color: cfg.color,
+      background: isDark ? cfg.darkBg : cfg.bg, color: cfg.color,
       padding: '3px 10px', borderRadius: 20,
       fontSize: 11, fontWeight: 700, letterSpacing: '0.04em'
     }}>{cfg.label}</span>
@@ -63,25 +65,25 @@ function RevenueChart({ invoices }: { invoices: Invoice[] }) {
               {/* Revenue bar (background) */}
               <rect
                 x={x} y={chartH - revH} width={barW} height={revH}
-                fill="rgba(37,99,235,0.15)" rx={4}
+                fill="rgba(201,168,76,0.15)" rx={4}
               />
               {/* Collected bar (foreground) */}
               <rect
                 x={x} y={chartH - colH} width={barW} height={colH}
-                fill="#2563eb" rx={4} opacity={0.85}
+                fill="#c9a84c" rx={4} opacity={0.9}
               />
               {/* Month label */}
               <text
                 x={x + barW / 2} y={chartH + 14}
-                textAnchor="middle" fontSize={10} fill="#94a3b8" fontWeight="600"
+                textAnchor="middle" fontSize={10} fill="var(--zd-text-3)" fontWeight="600"
               >
                 {m.label}
               </text>
-              {/* Value label on hover: use title */}
+              {/* Value label */}
               {m.revenue > 0 && (
                 <text
                   x={x + barW / 2} y={chartH - revH - 4}
-                  textAnchor="middle" fontSize={9} fill="#2563eb" fontWeight="700"
+                  textAnchor="middle" fontSize={9} fill="#c9a84c" fontWeight="700"
                 >
                   ₹{(m.revenue / 1000).toFixed(0)}k
                 </text>
@@ -90,16 +92,16 @@ function RevenueChart({ invoices }: { invoices: Invoice[] }) {
           )
         })}
         {/* Y axis line */}
-        <line x1={28} y1={0} x2={28} y2={chartH} stroke="#e2e8f0" strokeWidth={1} />
+        <line x1={28} y1={0} x2={28} y2={chartH} stroke="var(--zd-border)" strokeWidth={1} />
       </svg>
       <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: '#2563eb', opacity: 0.85 }} />
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>Collected</span>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: '#c9a84c', opacity: 0.9 }} />
+          <span style={{ fontSize: 11, color: 'var(--zd-text-3)' }}>Collected</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(37,99,235,0.15)' }} />
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>Billed</span>
+          <div style={{ width: 10, height: 10, borderRadius: 2, background: 'rgba(201,168,76,0.15)' }} />
+          <span style={{ fontSize: 11, color: 'var(--zd-text-3)' }}>Billed</span>
         </div>
       </div>
     </div>
@@ -145,17 +147,17 @@ export default function InvoiceList({ navigate }: Props) {
   const outstanding = totalBilled - totalPaid
 
   const summaryCards = [
-    { title: 'Revenue This Period', value: `₹${totalBilled.toLocaleString('en-IN')}`, icon: <DollarOutlined />, iconBg: '#dbeafe', iconColor: '#2563eb', sub: `${invoices.filter(i => i.status === 'paid').length} fully paid` },
-    { title: 'Collected', value: `₹${totalPaid.toLocaleString('en-IN')}`, icon: <RiseOutlined />, iconBg: '#dcfce7', iconColor: '#16a34a', sub: null },
-    { title: 'Outstanding', value: `₹${outstanding.toLocaleString('en-IN')}`, icon: <ClockCircleOutlined />, iconBg: '#fee2e2', iconColor: '#dc2626', sub: `${invoices.filter(i => i.status !== 'paid' && i.status !== 'voided').length} pending` },
-    { title: 'Total Invoices', value: invoices.length, icon: <FileTextOutlined />, iconBg: '#f3e8ff', iconColor: '#7c3aed', sub: null },
+    { title: 'Revenue This Period', value: `₹${totalBilled.toLocaleString('en-IN')}`, icon: <DollarOutlined />, iconBg: 'rgba(201,168,76,0.15)', iconColor: '#c9a84c', sub: `${invoices.filter(i => i.status === 'paid').length} fully paid` },
+    { title: 'Collected', value: `₹${totalPaid.toLocaleString('en-IN')}`, icon: <RiseOutlined />, iconBg: 'rgba(34,197,94,0.13)', iconColor: '#22c55e', sub: null },
+    { title: 'Outstanding', value: `₹${outstanding.toLocaleString('en-IN')}`, icon: <ClockCircleOutlined />, iconBg: 'rgba(248,113,113,0.13)', iconColor: '#f87171', sub: `${invoices.filter(i => i.status !== 'paid' && i.status !== 'voided').length} pending` },
+    { title: 'Total Invoices', value: invoices.length, icon: <FileTextOutlined />, iconBg: 'rgba(167,139,250,0.13)', iconColor: '#a78bfa', sub: null },
   ]
 
   const columns = [
     {
       title: 'Invoice #', dataIndex: 'invoice_number', width: 160,
       render: (v: string, r: Invoice) => (
-        <Button type="link" style={{ padding: 0, fontFamily: 'monospace', fontWeight: 600, color: '#2563eb' }}
+        <Button type="link" style={{ padding: 0, fontFamily: 'monospace', fontWeight: 600, color: '#c9a84c' }}
           onClick={() => navigate({ page: 'invoice-detail', id: r.id })}>
           {v}
         </Button>
@@ -165,7 +167,7 @@ export default function InvoiceList({ navigate }: Props) {
       title: 'Patient Name', dataIndex: 'patient_name',
       render: (v: string, r: Invoice) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar size={30} style={{ background: '#dbeafe', color: '#2563eb', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+          <Avatar size={30} style={{ background: 'linear-gradient(135deg,#c9a84c,#8a6020)', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
             {v?.charAt(0) ?? 'P'}
           </Avatar>
           <div>

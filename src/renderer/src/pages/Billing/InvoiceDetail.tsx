@@ -4,6 +4,7 @@ import { ArrowLeftOutlined, PlusOutlined, FilePdfOutlined } from '@ant-design/ic
 import type { Invoice, InvoiceItem, Payment, IpcResult, AppSettings } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
 import { useAuthStore } from '../../store/authStore'
+import { useT } from '../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { id: number; navigate: (r: Route) => void }
@@ -22,6 +23,7 @@ export default function InvoiceDetail({ id, navigate }: Props) {
   const [printing, setPrinting] = useState(false)
   const [clinicSettings, setClinicSettings] = useState<Partial<AppSettings>>({})
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -262,13 +264,13 @@ export default function InvoiceDetail({ id, navigate }: Props) {
           <Space>
             <Button icon={<ArrowLeftOutlined />} onClick={() => navigate({ page: 'invoices' })}>Back</Button>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#1e3a8a' }}>
+              <div style={{ fontWeight: 700, fontSize: 18, color: t.text }}>
                 {invoice.invoice_number}
                 {invoice.billing_type === 'pharmacy' && (
                   <Tag color="purple" style={{ marginLeft: 8, fontSize: 11 }}>Pharmacy</Tag>
                 )}
               </div>
-              <div style={{ color: '#64748b', fontSize: 13 }}>{dayjs(invoice.created_at).format('DD MMM YYYY, HH:mm')}</div>
+              <div style={{ color: t.textSub, fontSize: 13 }}>{dayjs(invoice.created_at).format('DD MMM YYYY, HH:mm')}</div>
             </div>
           </Space>
           <Space>
@@ -287,7 +289,7 @@ export default function InvoiceDetail({ id, navigate }: Props) {
       <Row gutter={16} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="Subtotal" value={`₹${invoice.subtotal.toLocaleString('en-IN')}`} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="Discount" value={`₹${invoice.discount_amount.toLocaleString('en-IN')}`} valueStyle={{ color: '#dc2626' }} /></Card></Col>
-        <Col span={6}><Card size="small"><Statistic title="Total" value={`₹${invoice.total_amount.toLocaleString('en-IN')}`} valueStyle={{ color: '#1e3a8a', fontWeight: 700 }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="Total" value={`₹${invoice.total_amount.toLocaleString('en-IN')}`} valueStyle={{ color: '#c9a84c', fontWeight: 700 }} /></Card></Col>
         <Col span={6}><Card size="small"><Statistic title="Balance Due" value={`₹${balance.toLocaleString('en-IN')}`} valueStyle={{ color: balance > 0 ? '#dc2626' : '#16a34a' }} /></Card></Col>
       </Row>
 

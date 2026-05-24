@@ -15,22 +15,22 @@ interface Props { navigate: (r: Route) => void }
 const KPI_CARDS = (stats: DashboardStats | null, nav: (r: Route) => void) => [
   {
     title: "Today's Appointments", value: stats?.todayAppointments ?? 0,
-    icon: <CalendarOutlined />, iconBg: '#dbeafe', iconColor: '#2563eb',
+    icon: <CalendarOutlined />, iconBg: 'rgba(201,168,76,0.15)', iconColor: '#c9a84c',
     onClick: () => nav({ page: 'appointments-calendar' })
   },
   {
     title: 'Confirmed Today', value: stats?.confirmedAppointments ?? 0,
-    icon: <CheckCircleOutlined />, iconBg: '#dcfce7', iconColor: '#16a34a',
+    icon: <CheckCircleOutlined />, iconBg: 'rgba(34,197,94,0.13)', iconColor: '#22c55e',
     onClick: null
   },
   {
     title: 'Pending Follow-up', value: stats?.pendingAppointments ?? 0,
-    icon: <ClockCircleOutlined />, iconBg: '#fef3c7', iconColor: '#d97706',
+    icon: <ClockCircleOutlined />, iconBg: 'rgba(251,146,60,0.13)', iconColor: '#fb923c',
     onClick: null
   },
   {
     title: 'Total Patients', value: stats?.totalPatients ?? 0,
-    icon: <TeamOutlined />, iconBg: '#f3e8ff', iconColor: '#7c3aed',
+    icon: <TeamOutlined />, iconBg: 'rgba(167,139,250,0.13)', iconColor: '#a78bfa',
     onClick: () => nav({ page: 'patients' })
   },
 ]
@@ -38,25 +38,25 @@ const KPI_CARDS = (stats: DashboardStats | null, nav: (r: Route) => void) => [
 const FINANCE_CARDS = (stats: DashboardStats | null, nav: (r: Route) => void) => [
   {
     title: 'Revenue This Month', value: `₹${(stats?.monthRevenue ?? 0).toLocaleString('en-IN')}`,
-    icon: <DollarOutlined />, iconBg: '#cffafe', iconColor: '#0891b2',
+    icon: <DollarOutlined />, iconBg: 'rgba(201,168,76,0.15)', iconColor: '#c9a84c',
     trend: 'up' as const, trendLabel: 'vs last month',
     onClick: () => nav({ page: 'invoices' })
   },
   {
     title: 'Outstanding Balance', value: `₹${(stats?.outstandingBalance ?? 0).toLocaleString('en-IN')}`,
-    icon: <ExclamationCircleOutlined />, iconBg: '#fee2e2', iconColor: '#dc2626',
+    icon: <ExclamationCircleOutlined />, iconBg: 'rgba(248,113,113,0.13)', iconColor: '#f87171',
     trend: 'down' as const, trendLabel: 'needs follow-up',
     onClick: () => nav({ page: 'invoices' })
   },
   {
     title: 'Low Stock Items', value: stats?.lowStockCount ?? 0,
-    icon: <MedicineBoxOutlined />, iconBg: '#ffedd5', iconColor: '#ea580c',
+    icon: <MedicineBoxOutlined />, iconBg: 'rgba(251,146,60,0.13)', iconColor: '#fb923c',
     trend: null, trendLabel: '',
     onClick: () => nav({ page: 'inventory-items' })
   },
   {
     title: 'Expiring Items (30d)', value: stats?.expiringItemsCount ?? 0,
-    icon: <WarningOutlined />, iconBg: '#fef9c3', iconColor: '#b45309',
+    icon: <WarningOutlined />, iconBg: 'rgba(251,191,36,0.13)', iconColor: '#fbbf24',
     trend: null, trendLabel: '',
     onClick: () => nav({ page: 'inventory' })
   },
@@ -98,7 +98,7 @@ export default function Dashboard({ navigate }: Props) {
       title: 'Patient', dataIndex: 'patient_name',
       render: (v: string, r: Appointment) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Avatar size={28} style={{ background: '#dbeafe', color: '#2563eb', fontSize: 11, fontWeight: 700 }}>
+          <Avatar size={28} style={{ background: 'linear-gradient(135deg,#c9a84c,#8a6020)', color: '#fff', fontSize: 11, fontWeight: 700 }}>
             {v?.charAt(0) ?? 'P'}
           </Avatar>
           <Button type="link" style={{ padding: 0, fontWeight: 500 }}
@@ -164,7 +164,7 @@ export default function Dashboard({ navigate }: Props) {
                 </div>
               </div>
               {c.onClick && (
-                <div style={{ marginTop: 12, fontSize: 12, color: '#2563eb', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ marginTop: 12, fontSize: 12, color: '#c9a84c', display: 'flex', alignItems: 'center', gap: 4 }}>
                   View details <ArrowRightOutlined style={{ fontSize: 10 }} />
                 </div>
               )}
@@ -215,9 +215,9 @@ export default function Dashboard({ navigate }: Props) {
       <Card
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <CalendarOutlined style={{ color: '#2563eb' }} />
+            <CalendarOutlined style={{ color: '#c9a84c' }} />
             <span style={{ fontWeight: 700 }}>Today's Schedule</span>
-            <Tag color="blue" style={{ marginLeft: 4 }}>{todayAppts.length} appointments</Tag>
+            <Tag color="gold" style={{ marginLeft: 4 }}>{todayAppts.length} appointments</Tag>
           </div>
         }
         extra={

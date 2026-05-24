@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Spin, Card, Tag, Empty } from 'antd'
 import type { DentalChartEntry, TreatmentRecord, IpcResult } from '../../../../../shared/types'
 import { useAuthStore } from '../../../store/authStore'
+import { useT } from '../../../hooks/useT'
 import DentalChart from '../../../components/DentalChart/DentalChart'
 import dayjs from 'dayjs'
 
@@ -35,6 +36,7 @@ export default function DentalChartTab({ patientId }: Props) {
   const [scopeTreatments, setScopeTreatments] = useState<TreatmentRecord[]>([])
   const [loading, setLoading] = useState(true)
   const { user } = useAuthStore()
+  const t = useT()
 
   async function load() {
     setLoading(true)
@@ -94,17 +96,17 @@ export default function DentalChartTab({ patientId }: Props) {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 12px', borderRadius: 8,
-                    background: '#f8fafc', border: '1px solid #e2e8f0',
+                    background: t.bgFill, border: `1px solid ${t.border}`,
                     flexWrap: 'wrap'
                   }}
                 >
                   {/* Date */}
-                  <span style={{ fontSize: 11, color: '#94a3b8', minWidth: 80, flexShrink: 0 }}>
+                  <span style={{ fontSize: 11, color: t.textHint, minWidth: 80, flexShrink: 0 }}>
                     {dayjs(rec.treated_at).format('DD MMM YYYY')}
                   </span>
 
                   {/* Procedure name */}
-                  <span style={{ fontWeight: 600, fontSize: 13, color: '#1e293b', flex: 1, minWidth: 120 }}>
+                  <span style={{ fontWeight: 600, fontSize: 13, color: t.text, flex: 1, minWidth: 120 }}>
                     {rec.treatment_name}
                   </span>
 

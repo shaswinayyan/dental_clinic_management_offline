@@ -3,6 +3,7 @@ import { Card, Form, Select, Input, InputNumber, Button, Table, Divider, message
 import { PlusOutlined, DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 import type { Patient, Treatment, IpcResult } from '../../../../shared/types'
 import type { Route } from '../../components/Layout/MainLayout'
+import { useT } from '../../hooks/useT'
 import { useAuthStore } from '../../store/authStore'
 
 interface Props { patientId?: number; appointmentId?: number; navigate: (r: Route) => void }
@@ -19,6 +20,7 @@ export default function InvoiceForm({ patientId, appointmentId, navigate }: Prop
   const [taxRate, setTaxRate] = useState(0)
   const [discountThreshold, setDiscountThreshold] = useState(20)
   const { user } = useAuthStore()
+  const t = useT()
 
   useEffect(() => {
     async function load() {
@@ -158,12 +160,12 @@ export default function InvoiceForm({ patientId, appointmentId, navigate }: Prop
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Card size="small" style={{ background: '#f8fafc' }}>
+            <Card size="small" style={{ background: t.bgFill, border: `1px solid ${t.border}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span>Subtotal:</span><strong>₹{subtotal.toLocaleString('en-IN')}</strong></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span>Discount:</span><span style={{ color: '#dc2626' }}>-₹{discount.toLocaleString('en-IN')}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}><span>Tax ({taxRate}%):</span><span>₹{tax.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span></div>
               <Divider style={{ margin: '8px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><strong style={{ fontSize: 16 }}>Total:</strong><strong style={{ fontSize: 18, color: '#1e3a8a' }}>₹{total.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</strong></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}><strong style={{ fontSize: 16 }}>Total:</strong><strong style={{ fontSize: 18, color: '#c9a84c' }}>₹{total.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</strong></div>
             </Card>
           </Col>
         </Row>

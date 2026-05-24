@@ -348,8 +348,8 @@ export default function PharmacyStock({ navigate }: Props) {
         {selectedItem && (
           <div style={{
             padding: '8px 12px', marginBottom: 16,
-            background: '#f8fafc', borderRadius: 6,
-            border: '1px solid #e2e8f0', fontSize: 13
+            background: t.bgFill, borderRadius: 6,
+            border: `1px solid ${t.border}`, fontSize: 13
           }}>
             Current stock: <strong>{selectedItem.current_stock} {selectedItem.unit_of_measure}</strong>
             {' · '}

@@ -3,6 +3,7 @@ import { Card, Input, Button, Spin, message, DatePicker } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import type { ClinicalAssessment, IpcResult } from '../../../../../shared/types'
 import { useAuthStore } from '../../../store/authStore'
+import { useT } from '../../../hooks/useT'
 import dayjs from 'dayjs'
 
 interface Props { patientId: number }
@@ -11,6 +12,7 @@ export default function ClinicalAssessmentTab({ patientId }: Props) {
   const [assessments, setAssessments] = useState<ClinicalAssessment[]>([])
   const [selected, setSelected] = useState<ClinicalAssessment | null>(null)
   const [form, setForm] = useState({ subjective: '', objective: '', assessment: '', plan: '', session_date: dayjs().format('YYYY-MM-DD') })
+  const t = useT()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const { user } = useAuthStore()
@@ -81,12 +83,12 @@ export default function ClinicalAssessmentTab({ patientId }: Props) {
             onClick={() => selectAssessment(a)}
             style={{
               padding: '8px 10px', cursor: 'pointer', borderRadius: 6, marginBottom: 4,
-              background: selected?.id === a.id ? '#dbeafe' : '#f8fafc',
-              border: selected?.id === a.id ? '1px solid #93c5fd' : '1px solid transparent'
+              background: selected?.id === a.id ? 'rgba(201,168,76,0.12)' : t.bgFill,
+              border: selected?.id === a.id ? '1px solid rgba(201,168,76,0.4)' : `1px solid ${t.border}`
             }}
           >
-            <div style={{ fontWeight: 500, fontSize: 13 }}>{dayjs(a.session_date).format('DD MMM YYYY')}</div>
-            <div style={{ fontSize: 11, color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ fontWeight: 500, fontSize: 13, color: t.text }}>{dayjs(a.session_date).format('DD MMM YYYY')}</div>
+            <div style={{ fontSize: 11, color: t.textSub, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {a.subjective?.slice(0, 30) || 'No notes'}
             </div>
           </div>
@@ -111,7 +113,7 @@ export default function ClinicalAssessmentTab({ patientId }: Props) {
             { key: 'plan', label: 'P — Plan (Treatment Plan)', placeholder: 'Proposed treatment, follow-up instructions, prescriptions...' }
           ].map(field => (
             <div key={field.key} style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a8a', marginBottom: 4 }}>{field.label}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#c9a84c', marginBottom: 4 }}>{field.label}</div>
               <Input.TextArea
                 rows={3}
                 placeholder={field.placeholder}
