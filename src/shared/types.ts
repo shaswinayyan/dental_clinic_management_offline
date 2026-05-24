@@ -323,6 +323,10 @@ export interface AppSettings {
   clinic_name: string
   clinic_address: string
   clinic_phone: string
+  doctor_name: string
+  doctor_designation: string
+  doctor_qualification: string
+  doctor_license_no: string
   tax_rate: number
   discount_threshold: number
   session_timeout_minutes: number

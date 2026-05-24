@@ -1,7 +1,7 @@
 {
-  "name": "dental-clinic-manager",
+  "name": "vorsa-dental",
   "version": "1.0.0",
-  "description": "On-premise Dental Clinic Management Software",
+  "description": "Vorsa — Premium On-Premise Dental Clinic Management",
   "main": "out/main/index.js",
   "author": "Dental Clinic",
   "private": true,
@@ -51,8 +51,8 @@
     "vite": "^5.4.11"
   },
   "build": {
-    "appId": "com.dental.clinic.manager",
-    "productName": "Dental Clinic Manager",
+    "appId": "com.vorsa.dental",
+    "productName": "Vorsa",
     "directories": {
       "output": "dist"
     },

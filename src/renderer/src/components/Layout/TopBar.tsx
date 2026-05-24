@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Input, Avatar, Dropdown, Badge, Tooltip } from 'antd'
+import { Input, Dropdown, Badge, Tooltip, Avatar } from 'antd'
 import {
-  SearchOutlined, PlusOutlined, QuestionCircleOutlined,
+  SearchOutlined, PlusOutlined,
   SunOutlined, MoonFilled, LogoutOutlined, SettingOutlined, UserOutlined,
   BellOutlined
 } from '@ant-design/icons'
@@ -11,60 +11,59 @@ import type { Route } from './MainLayout'
 
 interface Props { route: Route; navigate: (r: Route) => void }
 
-function getPageTitle(route: Route): string {
-  switch (route.page) {
-    case 'dashboard': return 'Report'
-    case 'appointments-calendar': return 'Appointments'
-    case 'appointments-list': return 'Appointments'
-    case 'patients': return 'Patients'
-    case 'patient-detail': return 'Patients'
-    case 'invoices': return 'Revenue'
-    case 'invoice-create': return 'Revenue'
-    case 'invoice-detail': return 'Revenue'
-    case 'ledger': return 'Payment Ledger'
-    case 'inventory': return 'Inventory'
-    case 'inventory-items': return 'Stocks'
-    case 'inventory-item-detail': return 'Stocks'
-    case 'treatments': return 'Treatments'
-    case 'users': return 'Staff List'
-    case 'settings': return 'Settings'
-    case 'backup': return 'Backup & Restore'
-    case 'audit': return 'Audit Log'
-    default: return 'Dashboard'
-  }
+const PAGE_TITLES: Partial<Record<Route['page'], string>> = {
+  dashboard:               'Reports & Analytics',
+  'appointments-calendar': 'Appointments',
+  'appointments-list':     'Appointments',
+  patients:                'Patients',
+  'patient-detail':        'Patient Record',
+  invoices:                'Revenue',
+  'invoice-create':        'New Invoice',
+  'invoice-detail':        'Invoice Detail',
+  ledger:                  'Payment Ledger',
+  inventory:               'Inventory',
+  'inventory-items':       'Stock Management',
+  'inventory-item-detail': 'Item Detail',
+  treatments:              'Treatments',
+  users:                   'Staff Management',
+  settings:                'Settings',
+  backup:                  'Backup & Restore',
+  audit:                   'Audit Log',
+  'pharmacy-billing':      'Pharmacy Billing',
+  'pharmacy-billing-create':'New Pharmacy Bill',
+  'pharmacy-stock':        'Pharmacy Stock',
 }
 
 export default function TopBar({ route, navigate }: Props) {
-  const { user, logout } = useAuthStore()
+  const { user, logout }    = useAuthStore()
   const { isDark, toggleTheme } = useTheme()
   const [search, setSearch] = useState('')
 
-  const initials = (user?.username ?? 'U').slice(0, 2).toUpperCase()
+  const bg      = isDark ? '#111c2e' : '#ffffff'
+  const border  = isDark ? '#1e2d45' : '#eaecf0'
+  const text1   = isDark ? '#e8edf5' : '#111827'
+  const text2   = isDark ? '#7a8da8' : '#6b7280'
 
-  const bg = isDark ? '#1e293b' : '#ffffff'
-  const border = isDark ? '#334155' : '#e2e8f0'
-  const textPrimary = isDark ? '#f1f5f9' : '#1e293b'
-  const iconColor = isDark ? '#94a3b8' : '#64748b'
+  const initials = (user?.username ?? 'U').slice(0, 2).toUpperCase()
+  const title    = PAGE_TITLES[route.page] ?? 'Dashboard'
 
   const quickAddItems = [
-    { key: 'new-appt', label: 'New Appointment', onClick: () => navigate({ page: 'appointments-calendar' }) },
-    { key: 'new-patient', label: 'New Patient', onClick: () => navigate({ page: 'patients' }) },
-    { key: 'new-invoice', label: 'New Invoice', onClick: () => navigate({ page: 'invoice-create' }) },
+    { key: 'appt',    label: 'New Appointment', onClick: () => navigate({ page: 'appointments-calendar' }) },
+    { key: 'patient', label: 'New Patient',     onClick: () => navigate({ page: 'patients' }) },
+    { key: 'invoice', label: 'New Invoice',     onClick: () => navigate({ page: 'invoice-create' }) },
   ]
 
   const userMenuItems = [
-    { key: 'profile', label: 'My Profile', icon: <UserOutlined /> },
     { key: 'settings', label: 'Settings', icon: <SettingOutlined />, onClick: () => navigate({ page: 'settings' }) },
     { type: 'divider' as const },
-    { key: 'logout', label: 'Sign Out', icon: <LogoutOutlined />, danger: true, onClick: logout },
+    { key: 'logout',   label: 'Sign Out',  icon: <LogoutOutlined />, danger: true, onClick: logout },
   ]
 
-  const iconBtnStyle: React.CSSProperties = {
+  const iconBtn: React.CSSProperties = {
     background: 'none', border: 'none', cursor: 'pointer',
     width: 34, height: 34, borderRadius: 8,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: iconColor, fontSize: 16,
-    transition: 'background 0.15s, color 0.15s'
+    color: text2, fontSize: 16, transition: 'background 0.15s, color 0.15s'
   }
 
   return (
@@ -74,21 +73,26 @@ export default function TopBar({ route, navigate }: Props) {
         height: 60, background: bg,
         borderBottom: `1px solid ${border}`,
         display: 'flex', alignItems: 'center',
-        padding: '0 24px', gap: 16,
+        padding: '0 24px', gap: 14,
         position: 'sticky', top: 0, zIndex: 99,
-        flexShrink: 0
+        flexShrink: 0,
       }}
     >
       {/* Page title */}
-      <div style={{ fontWeight: 700, fontSize: 20, color: textPrimary, minWidth: 120 }}>
-        {getPageTitle(route)}
+      <div style={{ display: 'flex', flexDirection: 'column', minWidth: 140, flexShrink: 0 }}>
+        <span style={{ fontWeight: 700, fontSize: 17, color: text1, letterSpacing: '-0.2px', lineHeight: 1.2 }}>
+          {title}
+        </span>
+        <span style={{ fontSize: 10, color: '#c9a84c', letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 600 }}>
+          Vorsa
+        </span>
       </div>
 
-      {/* Search bar */}
-      <div className="zd-search" style={{ flex: 1, maxWidth: 420 }}>
+      {/* Search */}
+      <div className="zd-search" style={{ flex: 1, maxWidth: 400 }}>
         <Input
-          prefix={<SearchOutlined style={{ color: '#94a3b8' }} />}
-          placeholder="Search for anything here..."
+          prefix={<SearchOutlined style={{ color: '#c9a84c', opacity: 0.7 }} />}
+          placeholder="Search patients, invoices, appointments…"
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ borderRadius: 20, fontSize: 13 }}
@@ -100,59 +104,66 @@ export default function TopBar({ route, navigate }: Props) {
 
       {/* Quick add */}
       <Dropdown menu={{ items: quickAddItems }} trigger={['click']}>
-        <button
-          style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: '#2563eb', border: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', flexShrink: 0, color: '#fff', fontSize: 18,
-            boxShadow: '0 2px 8px rgba(37,99,235,0.35)'
-          }}
+        <button style={{
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #e8d080 0%, #c9a84c 60%, #a07828 100%)',
+          border: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', flexShrink: 0, color: '#0a1628', fontSize: 17,
+          boxShadow: '0 2px 10px rgba(201,168,76,0.45)',
+          transition: 'box-shadow 0.2s, transform 0.15s'
+        }}
+          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 18px rgba(201,168,76,0.65)'; e.currentTarget.style.transform = 'scale(1.08)' }}
+          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(201,168,76,0.45)'; e.currentTarget.style.transform = 'scale(1)' }}
         >
-          <PlusOutlined />
+          <PlusOutlined style={{ fontWeight: 900 }} />
         </button>
       </Dropdown>
 
       {/* Action icons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <Tooltip title="Help">
-          <button style={iconBtnStyle}><QuestionCircleOutlined /></button>
-        </Tooltip>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Tooltip title="Notifications">
-          <button style={iconBtnStyle} onClick={() => navigate({ page: 'audit' })}>
+          <button style={iconBtn} onClick={() => navigate({ page: 'audit' })}>
             <Badge count={0} size="small">
-              <BellOutlined style={{ fontSize: 16, color: iconColor }} />
+              <BellOutlined style={{ fontSize: 16, color: text2 }} />
             </Badge>
           </button>
         </Tooltip>
-        <Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+
+        <Tooltip title={isDark ? 'Light Mode' : 'Dark Mode'}>
           <button
-            style={{ ...iconBtnStyle, color: isDark ? '#fbbf24' : '#64748b' }}
+            style={{ ...iconBtn, color: isDark ? '#c9a84c' : text2 }}
             onClick={toggleTheme}
           >
-            {isDark ? <SunOutlined style={{ fontSize: 17 }} /> : <MoonFilled style={{ fontSize: 16 }} />}
+            {isDark ? <SunOutlined style={{ fontSize: 16 }} /> : <MoonFilled style={{ fontSize: 15 }} />}
           </button>
         </Tooltip>
       </div>
 
       {/* Divider */}
-      <div style={{ width: 1, height: 28, background: border }} />
+      <div style={{ width: 1, height: 26, background: border }} />
 
-      {/* User profile */}
+      {/* User */}
       <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
         <div
-          style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', borderRadius: 8, padding: '4px 8px', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = isDark ? '#334155' : '#f8fafc')}
+          style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', borderRadius: 8, padding: '4px 8px', transition: 'background 0.15s' }}
+          onMouseEnter={e => (e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : '#f5f6f8')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          <Avatar size={34} style={{ background: '#dbeafe', color: '#2563eb', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+          <Avatar
+            size={33}
+            style={{
+              background: 'linear-gradient(135deg, #c9a84c, #8a6020)',
+              color: '#fff', fontWeight: 700, fontSize: 12, flexShrink: 0
+            }}
+          >
             {initials}
           </Avatar>
           <div style={{ lineHeight: 1.3 }}>
-            <div style={{ fontWeight: 600, fontSize: 13, color: textPrimary, whiteSpace: 'nowrap' }}>
+            <div style={{ fontWeight: 600, fontSize: 13, color: text1, whiteSpace: 'nowrap' }}>
               {user?.username ?? 'User'}
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'capitalize' }}>
+            <div style={{ fontSize: 10, color: '#c9a84c', textTransform: 'capitalize', letterSpacing: '0.05em' }}>
               {user?.role ?? 'staff'}
             </div>
           </div>

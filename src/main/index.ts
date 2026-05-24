@@ -23,7 +23,7 @@ function createWindow(): void {
       sandbox: false
     },
     titleBarStyle: 'default',
-    title: 'Dental Clinic Manager'
+    title: 'Vorsa — Dental Clinic Management'
   })
 
   if (process.env.NODE_ENV === 'development') {

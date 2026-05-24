@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Avatar, Tooltip } from 'antd'
+import { Tooltip } from 'antd'
 import {
   CalendarOutlined, TeamOutlined, MedicineBoxOutlined, IdcardOutlined,
   BarChartOutlined, CreditCardOutlined, InboxOutlined, AppstoreOutlined,
@@ -7,74 +7,79 @@ import {
   MenuFoldOutlined, MenuUnfoldOutlined, ShoppingCartOutlined
 } from '@ant-design/icons'
 import type { Route } from './MainLayout'
-import type { IpcResult } from '../../../../shared/types'
-import { useTheme } from '../../context/ThemeContext'
+import type { IpcResult, AppSettings } from '../../../../shared/types'
+import VorsaLogo from '../VorsaLogo'
 
 interface Props { route: Route; navigate: (r: Route) => void }
-
 interface NavItem { key: Route['page']; icon: React.ReactNode; label: string; badge?: number }
 interface NavSection { label: string; items: NavItem[] }
 
-const ToothIcon = ({ color }: { color: string }) => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-    <path d="M12 2C9.5 2 7.5 3.5 6.5 5.5C5.5 4.5 4 4 3 5C1.5 6.5 2 9 3 11C4 13 4 15 4.5 17.5C5 20 6.5 22 8 22C9 22 9.5 21 10 19.5C10.5 18 11 17 12 17C13 17 13.5 18 14 19.5C14.5 21 15 22 16 22C17.5 22 19 20 19.5 17.5C20 15 20 13 21 11C22 9 22.5 6.5 21 5C20 4 18.5 4.5 17.5 5.5C16.5 3.5 14.5 2 12 2Z"
-      fill={color} fillOpacity="0.15" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
-  </svg>
-)
+// ── Palette (sidebar is always dark navy, theme-independent) ──────────
+const S = {
+  bg:          '#0a1628',
+  bgHover:     'rgba(201,168,76,0.09)',
+  bgActive:    'rgba(201,168,76,0.14)',
+  border:      'rgba(201,168,76,0.18)',
+  borderLight: 'rgba(255,255,255,0.06)',
+  gold:        '#c9a84c',
+  goldLight:   '#e8d080',
+  silver:      '#7a8da8',
+  silverDim:   '#4e5e74',
+  white:       '#e8edf5',
+}
 
 const sections: NavSection[] = [
   {
-    label: 'Clinic',
+    label: 'Clinical',
     items: [
       { key: 'appointments-calendar', icon: <CalendarOutlined />, label: 'Appointments' },
-      { key: 'patients', icon: <TeamOutlined />, label: 'Patients' },
-      { key: 'treatments', icon: <MedicineBoxOutlined />, label: 'Treatments' },
-      { key: 'users', icon: <IdcardOutlined />, label: 'Staff List' },
+      { key: 'patients',              icon: <TeamOutlined />,     label: 'Patients' },
+      { key: 'treatments',            icon: <MedicineBoxOutlined />, label: 'Treatments' },
+      { key: 'users',                 icon: <IdcardOutlined />,   label: 'Staff' },
     ]
   },
   {
     label: 'Finance',
     items: [
-      { key: 'invoices', icon: <BarChartOutlined />, label: 'Revenue' },
-      { key: 'ledger', icon: <CreditCardOutlined />, label: 'Payment Ledger' },
+      { key: 'invoices',         icon: <BarChartOutlined />,    label: 'Revenue' },
+      { key: 'ledger',           icon: <CreditCardOutlined />,  label: 'Payment Ledger' },
       { key: 'pharmacy-billing', icon: <ShoppingCartOutlined />, label: 'Pharmacy Billing' },
     ]
   },
   {
-    label: 'Physical Asset',
+    label: 'Inventory',
     items: [
-      { key: 'inventory-items', icon: <InboxOutlined />, label: 'Stocks' },
-      { key: 'inventory', icon: <AppstoreOutlined />, label: 'Inventory' },
-      { key: 'pharmacy-stock', icon: <MedicineBoxOutlined />, label: 'Pharmacy Stock' },
+      { key: 'inventory-items', icon: <InboxOutlined />,        label: 'Stocks' },
+      { key: 'inventory',       icon: <AppstoreOutlined />,     label: 'Inventory' },
+      { key: 'pharmacy-stock',  icon: <MedicineBoxOutlined />,  label: 'Pharmacy Stock' },
     ]
   }
 ]
 
 const bottomItems: NavItem[] = [
-  { key: 'dashboard', icon: <PieChartOutlined />, label: 'Report' },
-  { key: 'settings', icon: <SettingOutlined />, label: 'Settings' },
-  { key: 'backup', icon: <DatabaseOutlined />, label: 'Backup & Restore' },
-  { key: 'audit', icon: <AuditOutlined />, label: 'Audit Log' },
+  { key: 'dashboard', icon: <PieChartOutlined />,  label: 'Reports' },
+  { key: 'settings',  icon: <SettingOutlined />,   label: 'Settings' },
+  { key: 'backup',    icon: <DatabaseOutlined />,  label: 'Backup & Restore' },
+  { key: 'audit',     icon: <AuditOutlined />,     label: 'Audit Log' },
 ]
 
 export default function Sidebar({ route, navigate }: Props) {
   const [collapsed, setCollapsed] = useState(false)
-  const [lowStock, setLowStock] = useState(0)
-  const { isDark } = useTheme()
-
-  const bg = isDark ? '#1e293b' : '#ffffff'
-  const border = isDark ? '#334155' : '#e2e8f0'
-  const subBg = isDark ? '#0f172a' : '#f8fafc'
-  const subBorder = isDark ? '#334155' : '#e2e8f0'
-  const textPrimary = isDark ? '#f1f5f9' : '#1e293b'
-  const textMuted = isDark ? '#94a3b8' : '#94a3b8'
-  const toggleBg = isDark ? '#334155' : '#f1f5f9'
-  const toggleColor = isDark ? '#94a3b8' : '#64748b'
+  const [lowStock, setLowStock]   = useState(0)
+  const [clinicName, setClinicName] = useState('Vorsa Clinic')
+  const [doctorName, setDoctorName] = useState('')
 
   useEffect(() => {
     window.api.inventory.getLowStockAlertCount().then((r) => {
-      const result = r as IpcResult<number>
-      if (result.success && result.data) setLowStock(result.data)
+      const res = r as IpcResult<number>
+      if (res.success && res.data) setLowStock(res.data)
+    })
+    window.api.settings.get().then((r) => {
+      const res = r as IpcResult<AppSettings>
+      if (res.success && res.data) {
+        setClinicName(res.data.clinic_name || 'Vorsa Clinic')
+        setDoctorName((res.data as AppSettings & { doctor_name?: string }).doctor_name || '')
+      }
     })
   }, [])
 
@@ -82,10 +87,10 @@ export default function Sidebar({ route, navigate }: Props) {
 
   function isActive(key: string) {
     if (key === activeKey) return true
-    if (key === 'invoices' && (activeKey === 'invoice-create' || activeKey === 'invoice-detail')) return true
-    if (key === 'inventory-items' && activeKey === 'inventory-item-detail') return true
-    if (key === 'patients' && activeKey === 'patient-detail') return true
-    if (key === 'pharmacy-billing' && activeKey === 'pharmacy-billing-create') return true
+    if (key === 'invoices'       && (activeKey === 'invoice-create'          || activeKey === 'invoice-detail'))     return true
+    if (key === 'inventory-items' && activeKey === 'inventory-item-detail')  return true
+    if (key === 'patients'        && activeKey === 'patient-detail')          return true
+    if (key === 'pharmacy-billing'&& activeKey === 'pharmacy-billing-create') return true
     return false
   }
 
@@ -93,7 +98,7 @@ export default function Sidebar({ route, navigate }: Props) {
     navigate({ page: key as Route['page'] } as Route)
   }
 
-  const w = collapsed ? 68 : 232
+  const w = collapsed ? 64 : 236
 
   return (
     <div
@@ -101,158 +106,155 @@ export default function Sidebar({ route, navigate }: Props) {
       style={{
         width: w, minWidth: w, maxWidth: w,
         height: '100vh', position: 'sticky', top: 0,
-        background: bg,
-        borderRight: `1px solid ${border}`,
+        background: S.bg,
+        borderRight: `1px solid ${S.border}`,
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
-        transition: 'width 0.22s cubic-bezier(.4,0,.2,1), min-width 0.22s cubic-bezier(.4,0,.2,1)',
+        transition: 'width 0.24s cubic-bezier(.4,0,.2,1), min-width 0.24s cubic-bezier(.4,0,.2,1)',
         flexShrink: 0, zIndex: 100
       }}
     >
-      {/* Logo header — no toggle button here */}
+      {/* ── Logo header ─────────────────────────────────────── */}
       <div style={{
         display: 'flex', alignItems: 'center',
         justifyContent: collapsed ? 'center' : 'flex-start',
-        padding: collapsed ? '18px 0' : '18px 18px',
-        borderBottom: `1px solid ${border}`,
-        flexShrink: 0, gap: 10, minHeight: 62
+        padding: collapsed ? '16px 0' : '16px 16px',
+        borderBottom: `1px solid ${S.border}`,
+        flexShrink: 0, minHeight: 68,
+        background: 'linear-gradient(180deg, rgba(201,168,76,0.07) 0%, transparent 100%)'
       }}>
-        <ToothIcon color="#2563eb" />
-        {!collapsed && (
-          <span style={{
-            fontWeight: 800, fontSize: 17, color: '#2563eb',
-            whiteSpace: 'nowrap', letterSpacing: '-0.4px'
-          }}>
-            Zendenta
-          </span>
-        )}
+        <VorsaLogo iconSize={collapsed ? 32 : 36} collapsed={collapsed} />
       </div>
 
-      {/* Clinic info card */}
+      {/* ── Clinic / doctor card ─────────────────────────────── */}
       {!collapsed && (
         <div style={{
-          margin: '10px 12px 2px',
-          background: subBg,
-          borderRadius: 10,
+          margin: '12px 12px 4px',
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: 8,
           padding: '10px 12px',
-          display: 'flex', alignItems: 'center', gap: 10,
-          border: `1px solid ${subBorder}`, flexShrink: 0
+          border: `1px solid ${S.borderLight}`,
+          flexShrink: 0
         }}>
-          <Avatar size={34} style={{ background: '#dbeafe', color: '#2563eb', flexShrink: 0, fontSize: 14, fontWeight: 700 }}>C</Avatar>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontWeight: 600, fontSize: 12.5, color: textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Dental Clinic
+          <div style={{
+            fontSize: 11.5, fontWeight: 700, color: S.white,
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            letterSpacing: '0.01em'
+          }}>
+            {clinicName}
+          </div>
+          {doctorName ? (
+            <div style={{ fontSize: 10.5, color: S.gold, marginTop: 2, letterSpacing: '0.03em' }}>
+              Dr. {doctorName}
             </div>
-            <div style={{ fontSize: 11, color: textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          ) : (
+            <div style={{ fontSize: 10, color: S.silverDim, marginTop: 2, letterSpacing: '0.03em' }}>
               Management System
             </div>
-          </div>
+          )}
         </div>
       )}
 
-      {/* Navigation */}
-      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 4 }}>
+      {/* ── Navigation ──────────────────────────────────────── */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', paddingBottom: 4, marginTop: 8 }}>
         {sections.map(section => (
           <div key={section.label}>
             {!collapsed && (
-              <div className="zd-section-label" style={{ color: textMuted }}>{section.label}</div>
+              <div className="zd-section-label">{section.label}</div>
             )}
-            {collapsed && <div style={{ height: 10 }} />}
+            {collapsed && <div style={{ height: 12 }} />}
+
             {section.items.map(item => {
               const active = isActive(item.key)
-              const badge = item.key === 'inventory-items' && lowStock > 0 ? lowStock : undefined
+              const badge  = item.key === 'inventory-items' && lowStock > 0 ? lowStock : undefined
+
               const content = (
                 <div
                   key={item.key}
                   className={`zd-nav-item${active ? ' active' : ''}`}
-                  style={{
-                    ...(collapsed ? { justifyContent: 'center', padding: '10px 0', margin: '2px 8px' } : {}),
-                    ...(isDark && !active ? { color: '#94a3b8' } : {})
-                  }}
+                  style={collapsed ? { justifyContent: 'center', padding: '10px 0', marginRight: 8, borderRadius: '0 8px 8px 0' } : {}}
                   onClick={() => handleNavigate(item.key)}
                 >
-                  <span className="zd-nav-icon" style={{ position: 'relative' }}>
+                  <span className="zd-nav-icon" style={{ position: 'relative', color: active ? S.gold : S.silver }}>
                     {item.icon}
-                    {badge && !collapsed && (
+                    {badge && collapsed && (
                       <span style={{
-                        position: 'absolute', top: -6, right: -8,
-                        background: '#ef4444', color: '#fff',
-                        borderRadius: 10, fontSize: 9, fontWeight: 700,
-                        padding: '1px 4px', lineHeight: 1.4
+                        position: 'absolute', top: -5, right: -6,
+                        background: '#dc2626', color: '#fff',
+                        borderRadius: 8, fontSize: 8, fontWeight: 700, padding: '1px 3px', lineHeight: 1.4
                       }}>{badge}</span>
                     )}
                   </span>
                   {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
                   {!collapsed && badge && (
                     <span style={{
-                      background: active ? 'rgba(255,255,255,0.25)' : '#fee2e2',
-                      color: active ? '#fff' : '#dc2626',
-                      borderRadius: 10, fontSize: 10, fontWeight: 700,
-                      padding: '1px 6px', lineHeight: 1.4
+                      background: active ? 'rgba(255,255,255,0.18)' : 'rgba(220,38,38,0.15)',
+                      color: active ? '#fff' : '#f87171',
+                      borderRadius: 10, fontSize: 9.5, fontWeight: 700, padding: '1px 6px'
                     }}>{badge}</span>
                   )}
                 </div>
               )
               return collapsed
-                ? <Tooltip key={item.key} title={item.label} placement="right">{content}</Tooltip>
+                ? <Tooltip key={item.key} title={item.label} placement="right" color={S.bg}>{content}</Tooltip>
                 : content
             })}
           </div>
         ))}
 
-        {/* Divider */}
-        <div style={{ height: 1, background: border, margin: '8px 16px' }} />
+        {/* Gold divider */}
+        <div style={{ height: 1, background: S.border, margin: '10px 18px' }} />
 
-        {/* Bottom standalone items */}
+        {/* Bottom items */}
         {bottomItems.map(item => {
           const active = isActive(item.key)
           const content = (
             <div
               key={item.key}
               className={`zd-nav-item${active ? ' active' : ''}`}
-              style={{
-                ...(collapsed ? { justifyContent: 'center', padding: '10px 0', margin: '2px 8px' } : {}),
-                ...(isDark && !active ? { color: '#94a3b8' } : {})
-              }}
+              style={collapsed ? { justifyContent: 'center', padding: '10px 0', marginRight: 8, borderRadius: '0 8px 8px 0' } : {}}
               onClick={() => handleNavigate(item.key)}
             >
-              <span className="zd-nav-icon">{item.icon}</span>
+              <span className="zd-nav-icon" style={{ color: active ? S.gold : S.silver }}>{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}
             </div>
           )
           return collapsed
-            ? <Tooltip key={item.key} title={item.label} placement="right">{content}</Tooltip>
+            ? <Tooltip key={item.key} title={item.label} placement="right" color={S.bg}>{content}</Tooltip>
             : content
         })}
       </div>
 
-      {/* Collapse toggle at the very bottom */}
+      {/* ── Collapse toggle ──────────────────────────────────── */}
       <div style={{
-        borderTop: `1px solid ${border}`,
+        borderTop: `1px solid ${S.border}`,
         padding: '10px 12px',
-        flexShrink: 0, display: 'flex',
-        justifyContent: collapsed ? 'center' : 'flex-start'
+        flexShrink: 0,
+        display: 'flex',
+        justifyContent: collapsed ? 'center' : 'space-between',
+        alignItems: 'center',
+        background: 'rgba(0,0,0,0.15)'
       }}>
-        <Tooltip title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'} placement="right">
+        {!collapsed && (
+          <span style={{ fontSize: 10, color: S.silverDim, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Collapse
+          </span>
+        )}
+        <Tooltip title={collapsed ? 'Expand' : 'Collapse'} placement="right" color={S.bg}>
           <button
             onClick={() => setCollapsed(c => !c)}
             style={{
-              background: toggleBg, border: 'none', borderRadius: 8,
-              width: 36, height: 36, cursor: 'pointer', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              color: toggleColor, fontSize: 14, transition: 'background 0.15s'
+              background: 'rgba(255,255,255,0.06)', border: `1px solid ${S.borderLight}`,
+              borderRadius: 6, width: 32, height: 32,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: S.silver, fontSize: 13, transition: 'background 0.15s, color 0.15s', flexShrink: 0
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = isDark ? '#475569' : '#e2e8f0')}
-            onMouseLeave={e => (e.currentTarget.style.background = toggleBg)}
+            onMouseEnter={e => { e.currentTarget.style.background = S.bgHover; e.currentTarget.style.color = S.gold }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = S.silver }}
           >
             {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </button>
         </Tooltip>
-        {!collapsed && (
-          <span style={{ marginLeft: 10, fontSize: 12, color: textMuted, alignSelf: 'center' }}>
-            Collapse
-          </span>
-        )}
       </div>
     </div>
   )

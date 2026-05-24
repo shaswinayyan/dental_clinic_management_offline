@@ -55,8 +55,10 @@ export default function InvoiceDetail({ id, navigate }: Props) {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #1e293b; padding: 32px 36px; background: #fff; }
   .header { text-align: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 14px; margin-bottom: 20px; }
-  .clinic-name { font-size: 24px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.5px; }
+  .clinic-name { font-size: 24px; font-weight: 800; color: #0a1628; letter-spacing: 0.06em; text-transform: uppercase; }
+  .clinic-gold { color: #c9a84c; }
   .clinic-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+  .doctor-line { font-size: 12px; color: #c9a84c; font-weight: 600; margin-top: 4px; }
   .inv-meta { display: flex; justify-content: space-between; margin-bottom: 20px; gap: 20px; }
   .inv-meta-block { flex: 1; }
   .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 2px; }
@@ -88,9 +90,12 @@ export default function InvoiceDetail({ id, navigate }: Props) {
 <body>
   <!-- Clinic Header -->
   <div class="header">
-    <div class="clinic-name">${clinic.clinic_name || 'Dental Clinic'}</div>
+    <div style="height:4px;background:linear-gradient(90deg,#c9a84c,#e8d080,#c9a84c);border-radius:2px;margin-bottom:14px;"></div>
+    <div class="clinic-name">${clinic.clinic_name || 'Vorsa Dental Clinic'}</div>
     ${clinic.clinic_address ? `<div class="clinic-sub">${clinic.clinic_address}</div>` : ''}
     ${clinic.clinic_phone ? `<div class="clinic-sub">Tel: ${clinic.clinic_phone}</div>` : ''}
+    ${(clinic as AppSettings & { doctor_name?: string; doctor_qualification?: string; doctor_designation?: string }).doctor_name ? `<div class="doctor-line">Dr. ${(clinic as AppSettings & { doctor_name?: string }).doctor_name}${(clinic as AppSettings & { doctor_qualification?: string }).doctor_qualification ? ' &mdash; ' + (clinic as AppSettings & { doctor_qualification?: string }).doctor_qualification : ''}${(clinic as AppSettings & { doctor_designation?: string }).doctor_designation ? ' &middot; ' + (clinic as AppSettings & { doctor_designation?: string }).doctor_designation : ''}</div>` : ''}
+    <div style="height:1px;background:rgba(201,168,76,0.3);margin-top:14px;"></div>
   </div>
 
   <!-- Invoice Meta -->
