@@ -5,6 +5,7 @@
   "main": "out/main/index.js",
   "author": "Dental Clinic",
   "private": true,
+  "packageManager": "pnpm@10.28.0",
   "workspaces": [
     "apps/*",
     "packages/*"
