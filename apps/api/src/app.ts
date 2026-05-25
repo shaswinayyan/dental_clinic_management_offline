@@ -16,8 +16,6 @@ import { Hono }          from 'hono'
 import { cors }          from 'hono/cors'
 import { logger }        from 'hono/logger'
 import { secureHeaders } from 'hono/secure-headers'
-import { clerkMiddleware } from '@hono/clerk-auth'
-
 import { env }           from './env'
 import { apiRouter }     from './routers'
 import { errorHandler }  from './middleware/errorHandler'
@@ -54,11 +52,6 @@ app.use('*', cors({
 if (!env.isProduction) {
   app.use('*', logger())
 }
-
-// ── Clerk authentication (JWT verification + user identity) ───────────────────
-// Clerk replaces our custom JWT implementation.
-// clerkMiddleware() verifies the token and makes `getAuth(c)` available.
-app.use('*', clerkMiddleware())
 
 // ── Global rate limiter (Upstash Redis) ───────────────────────────────────────
 app.use('/api/*', rateLimiter('global', env.RATE_LIMIT_MAX, '15 m'))

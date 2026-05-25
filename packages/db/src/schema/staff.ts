@@ -7,8 +7,8 @@ export const staff = pgTable('staff', {
   id:            uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   clinic_id:     uuid('clinic_id').notNull().references(() => clinics.id, { onDelete: 'cascade' }),
   branch_id:     uuid('branch_id').references(() => branches.id),
-  /** Clerk user ID — set when the invited user accepts via Clerk */
-  clerk_user_id: text('clerk_user_id').unique(),
+  /** Supabase Auth user ID — maps to auth.users.id in Supabase */
+  user_id:       text('user_id').unique(),
   email:         text('email').notNull(),
   name:          text('name').notNull(),
   phone:         text('phone'),

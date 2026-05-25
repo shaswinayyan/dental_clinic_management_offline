@@ -225,10 +225,10 @@ router.post('/invite',
 // ── POST /accept-invite ────────────────────────────────────────────────────────
 
 router.post('/accept-invite', async (c) => {
-  const { token, clerkUserId } = await c.req.json() as { token: string; clerkUserId: string }
+  const { token, supabaseUserId } = await c.req.json() as { token: string; supabaseUserId: string }
 
-  if (!token || !clerkUserId) {
-    throw new HTTPException(400, { message: 'token and clerkUserId are required' })
+  if (!token || !supabaseUserId) {
+    throw new HTTPException(400, { message: 'token and supabaseUserId are required' })
   }
 
   const invite = await db.select()
@@ -247,7 +247,7 @@ router.post('/accept-invite', async (c) => {
     .values({
       clinic_id:     invite.clinic_id,
       branch_id:     invite.branch_id,
-      clerk_user_id: clerkUserId,
+      user_id:       supabaseUserId,
       email:         invite.email,
       role:          invite.role,
       name:          '',  // Updated when staff sets up their profile

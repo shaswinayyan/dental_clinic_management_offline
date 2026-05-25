@@ -1,23 +1,23 @@
 /**
  * Auth routes — /api/v2/auth
  *
- * POST   /register   — Register a new clinic + owner (Clerk + DB)
+ * POST   /register   — Register a new clinic + owner (Supabase user + DB)
  * GET    /me         — Return authenticated staff profile with plan info
  * PATCH  /me/profile — Update own name/phone/designation
  *
- * Session management (login, logout, token refresh) is handled by Clerk.
- * The Clerk-hosted UI handles the sign-in/sign-up flow.
- * These routes handle VORSA-specific business logic after Clerk auth.
+ * Session management (sign-up, sign-in, token refresh) is handled by
+ * Supabase Auth on the frontend. These routes handle VORSA-specific
+ * business logic (tenant provisioning) after Supabase auth.
  */
 import { Hono }          from 'hono'
 import { zValidator }    from '@hono/zod-validator'
-import { getAuth }       from '@hono/clerk-auth'
 import { HTTPException } from 'hono/http-exception'
-import { db, staff, clinics, clinicSettings, eq } from '@vorsa/db'
-import { RegisterClinicSchema } from '@vorsa/validators'
-import { requireAuth }   from '../middleware/auth'
-import { registerClinic } from '../services/tenant'
-import type { AppEnv }   from '../app'
+import { db, staff, clinics, eq } from '@vorsa/db'
+import { RegisterClinicSchema }   from '@vorsa/validators'
+import { requireAuth }            from '../middleware/auth'
+import { verifyToken }            from '../lib/supabase'
+import { registerClinic }         from '../services/tenant'
+import type { AppEnv }            from '../app'
 
 const router = new Hono<AppEnv>()
 
@@ -26,17 +26,35 @@ const router = new Hono<AppEnv>()
 router.post('/register',
   zValidator('json', RegisterClinicSchema),
   async (c) => {
-    const input    = c.req.valid('json')
-    const auth     = getAuth(c)
+    const input  = c.req.valid('json')
+    const bearer = c.req.header('Authorization')
 
-    // Require Clerk session for registration (user must sign up via Clerk first,
-    // then complete the clinic registration wizard)
-    if (!auth?.userId) {
-      throw new HTTPException(401, { message: 'Complete Clerk sign-up before registering a clinic' })
+    if (!bearer?.startsWith('Bearer ')) {
+      throw new HTTPException(401, { message: 'Sign in with Supabase before registering a clinic' })
     }
 
-    const clinic = await registerClinic({ ...input, clerkUserId: auth.userId })
-    return c.json({ success: true, data: clinic }, 201)
+    let supabaseUserId: string
+    try {
+      const user     = await verifyToken(bearer.slice(7))
+      supabaseUserId = user.id
+    } catch {
+      throw new HTTPException(401, { message: 'Invalid or expired token' })
+    }
+
+    // Prevent duplicate registrations for the same Supabase user
+    const existing = await db
+      .select({ id: staff.id })
+      .from(staff)
+      .where(eq(staff.user_id, supabaseUserId))
+      .limit(1)
+      .then(r => r[0])
+
+    if (existing) {
+      throw new HTTPException(409, { message: 'A clinic is already registered to this account' })
+    }
+
+    const result = await registerClinic({ ...input, supabaseUserId })
+    return c.json({ success: true, data: result }, 201)
   },
 )
 

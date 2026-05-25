@@ -6,8 +6,8 @@
  *   - all schema tables and inferred types
  *   - drizzle-orm helper functions for convenience
  */
-export { db, neonSql } from './client'
-export type { DB }     from './client'
+export { db }      from './client'
+export type { DB } from './client'
 export * from './schema'
 
 // Re-export commonly used Drizzle helpers so consumers don't need to

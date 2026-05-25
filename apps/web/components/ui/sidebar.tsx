@@ -1,13 +1,14 @@
 'use client'
 
-import Link           from 'next/link'
+import Link            from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UserButton }  from '@clerk/nextjs'
+import { useRouter }   from 'next/navigation'
+import { useSupabase } from '@/components/providers'
 import {
   LayoutDashboard, Users, CalendarDays, FileText,
-  Package, BarChart3, Settings, Stethoscope,
+  Package, BarChart3, Settings, Stethoscope, LogOut,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { href: '/dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
@@ -20,7 +21,15 @@ const NAV_ITEMS = [
 ] as const
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const pathname       = usePathname()
+  const router         = useRouter()
+  const { supabase, user } = useSupabase()
+
+  async function signOut() {
+    await supabase.auth.signOut()
+    router.push('/sign-in')
+    router.refresh()
+  }
 
   return (
     <aside className="flex flex-col w-[240px] min-h-screen bg-white border-r border-border shrink-0">
@@ -55,16 +64,26 @@ export function Sidebar() {
       </nav>
 
       {/* User */}
-      <div className="px-4 py-4 border-t border-border">
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox:     'w-8 h-8',
-              userButtonBox: 'flex items-center gap-2',
-            },
-          }}
-          showName
-        />
+      <div className="px-3 py-4 border-t border-border">
+        <div className="flex items-center gap-2.5 px-2">
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-semibold shrink-0">
+            {user?.email ? getInitials(user.user_metadata?.full_name ?? user.email) : '?'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-text-primary truncate">
+              {user?.user_metadata?.full_name ?? 'My Account'}
+            </p>
+            <p className="text-xs text-text-muted truncate">{user?.email}</p>
+          </div>
+          <button
+            onClick={signOut}
+            title="Sign out"
+            className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors shrink-0"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </aside>
   )

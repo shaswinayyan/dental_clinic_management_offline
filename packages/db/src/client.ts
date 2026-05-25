@@ -1,28 +1,28 @@
 /**
- * Neon PostgreSQL client via Drizzle ORM.
+ * Supabase PostgreSQL client via Drizzle ORM.
  *
- * Neon separates storage from compute — it scales to zero when idle
- * (perfect for small clinics overnight) and supports HTTP-based queries
- * from serverless environments (Lambda, Cloudflare Workers).
+ * Uses the `postgres` npm package (standard TCP driver) with Drizzle ORM.
+ * Supabase provides a standard PostgreSQL connection — no proprietary
+ * driver needed. Works on Node.js, Bun, and edge runtimes via tunnel.
  *
- * Connection: uses the @neondatabase/serverless driver which speaks HTTP
- * instead of TCP, so it works in edge runtimes with no WebSocket/TCP overhead.
+ * Connection: Supabase session pooler (port 6543, pgbouncer mode).
+ * `prepare: false` is required for pgbouncer compatibility.
  */
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import postgres from 'postgres'
+import { drizzle } from 'drizzle-orm/postgres-js'
 import * as schema from './schema'
 
 if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL environment variable is required')
 }
 
-// HTTP-based Neon SQL executor (serverless-compatible)
-const sql = neon(process.env.DATABASE_URL)
+// Postgres client — prepare:false is required for Supabase session pooler
+const client = postgres(process.env.DATABASE_URL, {
+  prepare: false,
+  ssl:     'require',
+})
 
 // Drizzle instance with full schema for type-safe query building
-export const db = drizzle(sql, { schema })
-
-// Export the raw Neon executor for one-off queries when Drizzle's builder isn't needed
-export { sql as neonSql }
+export const db = drizzle(client, { schema })
 
 export type DB = typeof db

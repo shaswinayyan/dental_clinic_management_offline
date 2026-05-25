@@ -1,37 +1,37 @@
 /**
- * Clerk authentication middleware for Hono.
- *
- * Replaces the custom JWT verify/decode middleware.
+ * Supabase authentication middleware for Hono.
  *
  * How it works:
- *   1. clerkMiddleware() (in app.ts) verifies the Clerk JWT on every request
- *   2. requireAuth() (this file) checks the JWT is present AND maps the
- *      Clerk userId → our staff record (fetching clinicId, role, branchId)
- *   3. After requireAuth(), c.get('staffId'), c.get('clinicId'), etc. are available
- *
- * The staff lookup is cached in Upstash Redis for 5 minutes to avoid a DB
- * hit on every single request (staff info rarely changes mid-session).
+ *   1. Client sends `Authorization: Bearer <supabase_access_token>`
+ *   2. requireAuth() calls supabaseAdmin.auth.getUser(token) to validate
+ *   3. Maps the Supabase user.id → our staff row (clinicId, role, branchId)
+ *   4. Sets typed context vars: staffId, clinicId, role, branchId
  */
-import type { MiddlewareHandler, Context } from 'hono'
-import { getAuth } from '@hono/clerk-auth'
-import { HTTPException } from 'hono/http-exception'
-import { db, staff, clinics, eq, and } from '@vorsa/db'
-import type { AppEnv } from '../app'
+import type { MiddlewareHandler } from 'hono'
+import { HTTPException }          from 'hono/http-exception'
+import { db, staff, eq }          from '@vorsa/db'
+import { verifyToken }            from '../lib/supabase'
+import type { AppEnv }            from '../app'
 
-// ── requireAuth middleware ────────────────────────────────────────────────────
+// ── requireAuth ───────────────────────────────────────────────────────────────
 
-/**
- * Requires a valid Clerk session.
- * Attaches clinicId, staffId, role, branchId to the Hono context.
- */
 export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  const auth = getAuth(c)
-
-  if (!auth?.userId) {
+  const bearer = c.req.header('Authorization')
+  if (!bearer?.startsWith('Bearer ')) {
     throw new HTTPException(401, { message: 'Authentication required' })
   }
 
-  // Look up the staff member by Clerk user ID
+  const token = bearer.slice(7)
+  let supabaseUserId: string
+
+  try {
+    const user    = await verifyToken(token)
+    supabaseUserId = user.id
+  } catch {
+    throw new HTTPException(401, { message: 'Invalid or expired token' })
+  }
+
+  // Map Supabase user → staff record
   const staffRow = await db
     .select({
       id:        staff.id,
@@ -41,12 +41,12 @@ export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
       is_active: staff.is_active,
     })
     .from(staff)
-    .where(eq(staff.clerk_user_id, auth.userId))
+    .where(eq(staff.user_id, supabaseUserId))
     .limit(1)
     .then(r => r[0])
 
   if (!staffRow) {
-    throw new HTTPException(401, { message: 'No staff account associated with this user' })
+    throw new HTTPException(401, { message: 'No staff account found. Please complete registration.' })
   }
 
   if (!staffRow.is_active) {
@@ -61,27 +61,28 @@ export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   await next()
 }
 
-/**
- * Optionally authenticate — does NOT throw if no session.
- * Useful for public endpoints that show more data when authenticated.
- */
+// ── optionalAuth ──────────────────────────────────────────────────────────────
+
 export const optionalAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  const auth = getAuth(c)
+  const bearer = c.req.header('Authorization')
 
-  if (auth?.userId) {
-    const staffRow = await db
-      .select({ id: staff.id, clinic_id: staff.clinic_id, branch_id: staff.branch_id, role: staff.role })
-      .from(staff)
-      .where(eq(staff.clerk_user_id, auth.userId))
-      .limit(1)
-      .then(r => r[0])
+  if (bearer?.startsWith('Bearer ')) {
+    try {
+      const user     = await verifyToken(bearer.slice(7))
+      const staffRow = await db
+        .select({ id: staff.id, clinic_id: staff.clinic_id, branch_id: staff.branch_id, role: staff.role })
+        .from(staff)
+        .where(eq(staff.user_id, user.id))
+        .limit(1)
+        .then(r => r[0])
 
-    if (staffRow) {
-      c.set('staffId',  staffRow.id)
-      c.set('clinicId', staffRow.clinic_id)
-      c.set('role',     staffRow.role as AppEnv['Variables']['role'])
-      c.set('branchId', staffRow.branch_id)
-    }
+      if (staffRow) {
+        c.set('staffId',  staffRow.id)
+        c.set('clinicId', staffRow.clinic_id)
+        c.set('role',     staffRow.role as AppEnv['Variables']['role'])
+        c.set('branchId', staffRow.branch_id)
+      }
+    } catch { /* ignore auth failures in optional mode */ }
   }
 
   await next()

@@ -2,7 +2,7 @@
  * Tenant provisioning service — creates a new clinic + owner staff record.
  *
  * Called from POST /api/v2/auth/register after the user has completed
- * Clerk sign-up. Sets up:
+ * Supabase sign-up. Sets up:
  *   1. clinics row (with default 'starter' plan)
  *   2. clinicSettings row (defaults seeded)
  *   3. branches row  (head office branch)
@@ -23,11 +23,11 @@ import { RegisterClinicSchema } from '@vorsa/validators'
 import { z } from 'zod'
 
 export type RegisterClinicInput = z.infer<typeof RegisterClinicSchema> & {
-  clerkUserId: string
+  supabaseUserId: string
 }
 
 export async function registerClinic(input: RegisterClinicInput) {
-  const { clerkUserId, clinic_name, owner_name, owner_email, owner_phone, timezone } = input
+  const { supabaseUserId, clinic_name, owner_name, owner_email, owner_phone, timezone } = input
 
   // 1. Create clinic
   const [clinic] = await db.insert(clinics)
@@ -85,7 +85,7 @@ export async function registerClinic(input: RegisterClinicInput) {
     .values({
       clinic_id:     clinic.id,
       branch_id:     branch.id,
-      clerk_user_id: clerkUserId,
+      user_id:       supabaseUserId,
       name:          owner_name,
       email:         owner_email,
       phone:         owner_phone ?? null,

@@ -21,13 +21,13 @@ export const env = {
   NODE_ENV: optional('NODE_ENV', 'development') as 'development' | 'production' | 'test',
   CORS_ORIGIN: optional('CORS_ORIGIN', 'http://localhost:3000'),
 
-  // ── Database (Neon PostgreSQL) ─────────────────────────────────────────────
+  // ── Database (Supabase PostgreSQL) ────────────────────────────────────────
   DATABASE_URL: required('DATABASE_URL'),
 
-  // ── Clerk Auth ─────────────────────────────────────────────────────────────
-  // Sign up at clerk.com → create an app → copy keys
-  CLERK_SECRET_KEY:     required('CLERK_SECRET_KEY'),
-  CLERK_PUBLISHABLE_KEY: optional('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', ''),
+  // ── Supabase Auth ──────────────────────────────────────────────────────────
+  // supabase.com → project → Settings → API
+  SUPABASE_URL:              required('SUPABASE_URL'),
+  SUPABASE_SERVICE_ROLE_KEY: required('SUPABASE_SERVICE_ROLE_KEY'),
 
   // ── Upstash Redis (rate limiting + config cache) ───────────────────────────
   // Sign up at upstash.com → create a Redis DB → copy REST credentials
