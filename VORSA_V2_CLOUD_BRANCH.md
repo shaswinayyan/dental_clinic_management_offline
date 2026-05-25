@@ -64,9 +64,9 @@ This branch implements the **PRD v1.1 §12 tech stack update** which mandates a 
 | Concern | v1 (master) | v2 (this branch) |
 |---|---|---|
 | Runtime | Electron + Express | Hono (edge-compatible HTTP) |
-| Database | SQLite (better-sqlite3) | PostgreSQL via Neon (serverless) |
+| Database | SQLite (better-sqlite3) | PostgreSQL via Supabase (serverless, pgbouncer pooler) |
 | ORM | None (raw pg queries) | Drizzle ORM |
-| Auth | Custom JWT / bcrypt | Clerk (hosted, passwordless-ready) |
+| Auth | Custom JWT / bcrypt | Supabase Auth (hosted, passwordless-ready, unlimited users) |
 | Frontend | Vite + Ant Design | Next.js 15 App Router + shadcn/ui |
 | CSS | Ant Design theme | Tailwind CSS v4 (`@theme`) |
 | Monorepo | None | Turborepo + pnpm workspaces |
@@ -190,7 +190,7 @@ dental/                          ← repo root
 │
 ├── turbo.json                   ← Turborepo pipeline
 ├── pnpm-workspace.yaml          ← pnpm workspace config
-└── package.json                 ← Root (workspaces + cloud:dev/build scripts)
+└── package.json                 ← Root (workspaces + dev scripts; dev=cloud by default, electron:dev for legacy)
 ```
 
 ---
@@ -202,11 +202,10 @@ dental/                          ← repo root
 |---|---|---|
 | **Hono** | ^4.x | HTTP framework (edge-compatible, replaces Express) |
 | **@hono/node-server** | ^1.x | Node.js adapter for Hono |
-| **@hono/clerk-auth** | ^2.x | Clerk JWT middleware for Hono |
 | **@hono/zod-validator** | ^0.4.x | Request body validation middleware |
 | **Drizzle ORM** | ^0.33.x | Type-safe query builder |
-| **@neondatabase/serverless** | ^0.10.x | Neon HTTP PostgreSQL driver |
-| **Clerk SDK** | (via hono middleware) | Auth provider |
+| **postgres** npm | latest | PostgreSQL client for Supabase (with pgbouncer session pooler) |
+| **@supabase/supabase-js** | ^2.x | Supabase admin client for token verification |
 | **@upstash/ratelimit** | ^2.x | Redis-backed rate limiting |
 | **@upstash/redis** | ^1.x | Upstash Redis client |
 | **Zod** | ^3.23.x | Schema validation |
@@ -214,7 +213,7 @@ dental/                          ← repo root
 ### Database
 | Technology | Role |
 |---|---|
-| **PostgreSQL** (Neon) | Primary database (serverless, connection pooling built-in) |
+| **PostgreSQL** (Supabase) | Primary database (serverless, pgbouncer session pooler on port 6543) |
 | **Drizzle Kit** | Schema migrations (`db:push`, `db:generate`, `db:migrate`, `db:studio`) |
 
 ### Frontend
@@ -222,7 +221,8 @@ dental/                          ← repo root
 |---|---|---|
 | **Next.js** | 15.1.0 | React framework with App Router |
 | **React** | ^19.0.0 | UI library |
-| **@clerk/nextjs** | ^5.x | Auth components + middleware |
+| **@supabase/ssr** | ^0.x | Supabase session management for Next.js App Router |
+| **@supabase/supabase-js** | ^2.x | Supabase client for browser and server |
 | **@tanstack/react-query** | ^5.51.x | Server state management |
 | **Tailwind CSS** | ^4.0.0 | CSS framework (CSS-first `@theme`) |
 | **Lucide React** | ^0.400.x | Icon set |
@@ -256,27 +256,33 @@ Request
   → secureHeaders()          [X-Frame-Options, CSP, HSTS etc.]
   → cors()                   [CORS_ORIGIN env var]
   → logger()                 [Hono built-in request logger]
-  → clerkMiddleware()         [Validates Clerk JWT on all routes]
-  → rateLimiter()             [Upstash sliding window, per-IP]
+  → rateLimiter()            [Upstash sliding window, per-IP]
   → /api/v2/* router
-       → requireAuth          [Per-route: verifies Clerk + looks up staff row]
-       → requireMinRole()     [Per-route: role hierarchy check]
-       → planGuard()          [Per-route: plan limit enforcement]
-       → zValidator()         [Per-route: Zod body validation]
+       → requireAuth         [Per-route: extracts Bearer token, verifies with Supabase]
+       → requireMinRole()    [Per-route: role hierarchy check]
+       → planGuard()         [Per-route: plan limit enforcement]
+       → zValidator()        [Per-route: Zod body validation]
        → handler()
   → notFound()               [404 JSON response]
   → onError()                [Catches all errors → structured JSON]
 ```
+
+**Auth Flow (Supabase):**
+- Token verification: `Authorization: Bearer <access_token>` header
+- Supabase admin client calls `getUser(token)` to validate and retrieve user
+- Returns `user.id` which maps to `staff.user_id` (renamed from `clerk_user_id`)
+- Lookup staff by `user_id` to retrieve `clinic_id`, `branch_id`, `role`
+- Context is typed and available to all handlers
 
 ### API Routes Reference
 
 All routes are mounted under **`/api/v2`**.
 
 #### `POST /auth/register`
-Creates a new clinic tenant. Requires a valid Clerk session (user must sign up via Clerk first). Provisions: clinic → settings → branch → working hours → appt config → owner staff record.
+Creates a new clinic tenant. Requires a valid Supabase access token from a newly signed-up user (no staff row exists yet). Provisions: clinic → settings → branch → working hours → appt config → owner staff record.
 
 **Body:** `{ clinic_name, owner_name, owner_email, owner_phone?, timezone? }`
-**Auth:** Clerk session (no staff row required yet)
+**Auth:** Bearer token from Supabase Auth (verified via `verifyToken()`)
 **Returns:** `{ clinic, branch, owner }`
 
 #### `GET /auth/me`
@@ -504,23 +510,25 @@ The `planGuard('resource')` middleware is attached **before** the creation handl
 
 ---
 
-### Auth Flow (Clerk)
+### Auth Flow (Supabase Auth)
 
 ```
-User signs up → Clerk hosted UI → Clerk userId created
-User calls POST /auth/register → supplies clinic info
+User signs up via email/password form → Supabase Auth creates user with id
+User calls POST /auth/register → supplies clinic info + Bearer token
+  → verifyToken() validates token with Supabase admin client
   → registerClinic() provisions the full tenant
-  → staff row created with clerk_user_id = auth.userId
+  → staff row created with user_id = supabase_user.id
 
 Subsequent requests:
-  → Clerk JWT in Authorization: Bearer header
-  → requireAuth middleware calls getAuth(c) → userId
-  → Looks up staff by clerk_user_id
+  → Bearer token in Authorization: Bearer <access_token> header
+  → requireAuth middleware calls verifyToken(token)
+  → Supabase admin client validates token and returns user.id
+  → Looks up staff by user_id
   → Sets c.var.staffId, clinicId, role, branchId
   → Handler runs with full typed context
 ```
 
-There are **no passwords, no refresh tokens, no custom JWT** in v2. Clerk handles all of that. The only credential stored in the Vorsa DB is the `clerk_user_id` foreign key on the `staff` table.
+Supabase Auth provides passwordless and traditional email/password authentication out of the box, with unlimited users on flat $25/mo pricing. The only credential stored in Vorsa DB is the `user_id` foreign key on the `staff` table (formerly `clerk_user_id`).
 
 ---
 
@@ -528,16 +536,21 @@ There are **no passwords, no refresh tokens, no custom JWT** in v2. Clerk handle
 
 ### Schema Overview
 
-The database is PostgreSQL hosted on **Neon** (serverless, HTTP-based). Drizzle ORM provides the type-safe query layer.
+The database is PostgreSQL hosted on **Supabase** (serverless, with pgbouncer session pooler). Drizzle ORM provides the type-safe query layer.
 
-Connection:
+Connection (pgbouncer pooler on port 6543):
 ```typescript
-import { neon } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-http'
+import postgres from 'postgres'
+import { drizzle } from 'drizzle-orm/postgres-js'
 
-const sql = neon(process.env.DATABASE_URL!)
-export const db = drizzle(sql, { schema })
+const client = postgres(process.env.DATABASE_URL!, { 
+  prepare: false,  // Required for Supabase pgbouncer session pooler
+  ssl: 'require' 
+})
+export const db = drizzle(client, { schema })
 ```
+
+**Important:** The `prepare: false` option is critical for Supabase's pgbouncer connection pooler (port 6543). Without it, prepared statements fail in session mode.
 
 ### All Tables
 
@@ -638,7 +651,7 @@ Unique constraint: `(clinic_id, label)`
 | `id` | uuid (PK) | |
 | `clinic_id` | uuid (FK) | |
 | `branch_id` | uuid (FK, nullable) | Null = unassigned (clinic_owner) |
-| `clerk_user_id` | text (unique) | Links to Clerk user |
+| `user_id` | text (unique) | Links to Supabase auth.users.id |
 | `name` | text | |
 | `email` | text | |
 | `phone` | text | |
@@ -852,11 +865,12 @@ All 3 commits are on top of the existing Electron app commit history and do not 
 ### `apps/api/.env` (required)
 
 ```env
-# Clerk
-CLERK_SECRET_KEY=sk_live_...
+# Supabase
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 
-# Neon PostgreSQL
-DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/vorsa?sslmode=require
+# Supabase PostgreSQL (pgbouncer pooler on port 6543)
+DATABASE_URL=postgresql://postgres:xxxxx@db.xxx.supabase.co:6543/postgres?sslmode=require
 
 # CORS
 CORS_ORIGIN=http://localhost:3000
@@ -889,15 +903,9 @@ R2_PUBLIC_URL=
 ### `apps/web/.env.local`
 
 ```env
-# Clerk (public key for frontend)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
-CLERK_SECRET_KEY=sk_live_...
-
-# Clerk redirect URLs
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
+# Supabase (public keys for frontend)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
 
 # API URL
 NEXT_PUBLIC_API_URL=http://localhost:3001/api/v2
@@ -910,8 +918,8 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api/v2
 ### Prerequisites
 - Node.js ≥ 20
 - pnpm ≥ 9 (`npm i -g pnpm`)
-- A Clerk account (free tier works) → create app → copy keys
-- A Neon account (free tier) → create project → copy connection string
+- A Supabase account (free tier works) → create project → copy URL and keys
+- (Optional) Upstash Redis for rate limiting
 
 ### Setup
 
@@ -925,13 +933,21 @@ pnpm install
 # 3. Create env files
 cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
-# → Fill in CLERK_SECRET_KEY, DATABASE_URL, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+# → Fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL (pgbouncer),
+# → NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-# 4. Push DB schema to Neon (no migration files needed for initial setup)
+# 4. Push DB schema to Supabase
 pnpm db:push
 
-# 5. Start both API and web in dev mode
-pnpm cloud:dev
+# 5. Start both API and web in dev mode (default)
+pnpm dev
+```
+
+**Default dev mode:** Running `pnpm dev` now launches the **cloud stack** (Next.js + Hono API).
+
+**Legacy Electron app (v1):** To launch the Electron desktop app instead:
+```bash
+pnpm electron:dev
 ```
 
 ### Individual package dev
@@ -950,7 +966,11 @@ pnpm db:studio
 ### Production build
 
 ```bash
+# Cloud stack
 pnpm cloud:build
+
+# Electron app (legacy)
+pnpm build
 ```
 
 ---
@@ -963,13 +983,13 @@ pnpm cloud:build
 | **Multi-tenancy** | Single clinic, single machine | Unlimited clinics, isolated |
 | **Multi-branch** | No | Yes (plan-gated) |
 | **Multi-doctor** | Limited | Yes (plan-gated) |
-| **Auth** | Custom JWT + bcrypt, stored locally | Clerk — passwordless, SSO-ready |
-| **Database** | SQLite (local file) | PostgreSQL on Neon (cloud, replicated) |
+| **Auth** | Custom JWT + bcrypt, stored locally | Supabase Auth — passwordless, email/password, unlimited users |
+| **Database** | SQLite (local file) | PostgreSQL on Supabase (cloud, pgbouncer pooler, flat pricing) |
 | **Offline support** | Full | No (requires internet) |
 | **Plan tiers** | None | Starter / Business / Enterprise |
 | **Analytics** | Basic inline | Dedicated analytics module (Business+) |
-| **API** | Express, no versioning | Hono `/api/v2/`, typed context |
-| **Frontend** | Ant Design + Vite | Next.js 15 + Tailwind CSS v4 |
+| **API** | Express, no versioning | Hono `/api/v2/`, typed context, Bearer token auth |
+| **Frontend** | Ant Design + Vite | Next.js 15 + Tailwind CSS v4 + Supabase session mgmt |
 | **Search** | None | Typesense (planned) |
 | **Realtime** | None | Ably (planned) |
 | **Background jobs** | None | Trigger.dev (planned) |
@@ -984,14 +1004,15 @@ This branch should **not** be merged to `master` until:
 1. ✅ All API routes implemented ← **DONE**
 2. ✅ Database schema complete ← **DONE**
 3. ✅ Next.js web app scaffolded ← **DONE**
-4. ⬜ Clerk keys configured and auth tested end-to-end
-5. ⬜ Neon database provisioned and `db:push` verified
-6. ⬜ Tenant registration flow tested (register → login → /me)
-7. ⬜ Billing flow tested (create invoice → record payment → ledger)
-8. ⬜ Analytics plan-gate verified (402 on Starter)
-9. ⬜ Production build passes (`pnpm cloud:build`)
-10. ⬜ CI/CD pipeline configured (GitHub Actions for Vercel + Fly.io/Railway deploy)
-11. ⬜ Remove `src/` Electron code (or move to `apps/desktop/`)
-12. ⬜ Merge strategy decision: squash-merge vs rebase
+4. ✅ Supabase Auth + DB migration complete ← **DONE** (commit f6efaf7)
+5. ✅ Default `pnpm dev` command set to cloud stack ← **DONE** (commit f6efaf7)
+6. ⬜ Supabase project provisioned and `db:push` verified
+7. ⬜ Tenant registration flow tested (sign-up → register clinic → login → /me)
+8. ⬜ Billing flow tested (create invoice → record payment → ledger)
+9. ⬜ Analytics plan-gate verified (402 on Starter)
+10. ⬜ Production build passes (`pnpm cloud:build`)
+11. ⬜ CI/CD pipeline configured (GitHub Actions for Vercel + Fly.io/Railway deploy)
+12. ⬜ Remove `src/` Electron code (or move to `apps/desktop/`)
+13. ⬜ Merge strategy decision: squash-merge vs rebase
 
-**Recommended merge strategy:** Squash all 3 feature branch commits into a single clean `feat: vorsa cloud v2 SaaS platform` commit on master, keeping the git history clean.
+**Recommended merge strategy:** Squash all feature branch commits into a single clean `feat: vorsa cloud v2 SaaS platform with Supabase` commit on master, keeping the git history clean.
