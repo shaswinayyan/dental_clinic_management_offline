@@ -10,11 +10,12 @@
     "packages/*"
   ],
   "scripts": {
+    "dev": "turbo dev --filter=@vorsa/api --filter=@vorsa/web",
+    "electron:dev": "electron-vite dev",
     "cloud:dev":   "turbo dev --filter=@vorsa/api --filter=@vorsa/web",
     "cloud:build": "turbo build --filter=@vorsa/api --filter=@vorsa/web",
     "db:push":     "turbo db:push --filter=@vorsa/db",
     "db:studio":   "turbo db:studio --filter=@vorsa/db",
-    "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "package": "electron-vite build && electron-builder",
