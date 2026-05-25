@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target":          "ES2022",
+    "module":          "ESNext",
+    "moduleResolution":"bundler",
+    "outDir":          "dist",
+    "rootDir":         "src",
+    "strict":          true,
+    "skipLibCheck":    true,
+    "esModuleInterop": true,
+    "declaration":     false,
+    "paths": {
+      "@vorsa/db":         ["../../packages/db/src/index.ts"],
+      "@vorsa/types":      ["../../packages/types/src/index.ts"],
+      "@vorsa/validators": ["../../packages/validators/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}
