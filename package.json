@@ -46,6 +46,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "turbo": "^2.9.0",
     "@electron/rebuild": "^4.0.4",
     "@types/archiver": "^6.0.3",
     "@types/bcryptjs": "^2.4.6",
