@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
+    plugins: [externalizeDepsPlugin({ exclude: ['archiver', 'archiver-utils', 'zip-stream', 'tar-stream', 'readdir-glob', 'buffer-crc32', 'async', 'readable-stream'] })],
     resolve: {
       alias: {
         '@main': resolve('src/main'),
