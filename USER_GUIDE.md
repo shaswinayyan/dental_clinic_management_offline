@@ -137,17 +137,20 @@ If you skipped that checkbox:
 
 Run the following commands **one at a time** in the same Command Prompt window. Wait for each to finish before typing the next.
 
+> ⚠️ **Important:** Always use **`npm`** to install packages. Do **not** use `pnpm`, `yarn`, or any other package manager — they create a different folder structure that causes a `Cannot find module 'archiver-utils'` error when the app launches.
+
 #### 3A — Install all packages
 ```
 npm install
 ```
-> This downloads all required libraries. It may take 3–5 minutes. You will see a lot of text — this is normal.
+> This downloads all required libraries **and automatically rebuilds the database module for Electron**. It may take 5–10 minutes on the first run. You will see a lot of text including a `✔ Rebuild Complete` line — this is normal.
 
-#### 3B — Rebuild the database module for Electron
+#### 3B — Verify the rebuild succeeded
+After `npm install` finishes, confirm you see this line in the output:
 ```
-npm run postinstall
+✔ Rebuild Complete
 ```
-> This compiles the SQLite database driver specifically for Electron. You may see compiler output — this is normal.
+> If this line is missing, run `npm run postinstall` manually and wait for it to complete before continuing.
 
 #### 3C — Build the application
 ```
@@ -209,8 +212,8 @@ When a new version is released on GitHub:
 3. Reinstall packages (in case new dependencies were added):
    ```
    npm install
-   npm run postinstall
    ```
+   > `npm install` automatically rebuilds native modules — no separate `npm run postinstall` needed.
 
 4. Rebuild and repackage:
    ```
@@ -228,8 +231,9 @@ When a new version is released on GitHub:
 |---|---|
 | `'node' is not recognized` | Node.js was not installed correctly. Re-run the Node.js installer. |
 | `'git' is not recognized` | Restart Command Prompt after installing Git — or re-install Git. |
-| `node-gyp` or `MSBuild` errors during `npm run postinstall` | The C++ build tools are missing. Run Step 1C above. |
+| `node-gyp` or `MSBuild` errors during `npm install` | The C++ build tools are missing. Run Step 1C above. |
 | `npm install` fails with proxy/network errors | Check your internet connection. If on a corporate network, ask IT about npm proxy settings. |
+| `Cannot find module 'archiver-utils'` on launch | You installed packages with `pnpm` or another package manager. Delete the `node_modules` folder, then run `npm install` (npm only). |
 | `npm run package` fails with icon error | Ensure `resources/icon.ico` exists in the project folder. |
 | Application opens but shows a blank screen | Run `npm run build` again, then `npm run package`. |
 | Black screen on launch | Right-click the desktop shortcut → "Run as administrator" once to check if it's a permissions issue. |
